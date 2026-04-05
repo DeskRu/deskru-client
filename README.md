@@ -7,7 +7,7 @@
 
 ## Скачать
 
-Готовые бинари для Windows, macOS, Linux и Android доступны в
+Готовые сборки для Windows, macOS, Linux и Android доступны в
 [DeskRu/releases-clients](https://github.com/DeskRu/releases-clients/releases).
 
 ## Начало работы
@@ -31,5 +31,5 @@
 
 *English: This is a RustDesk-based remote desktop client for
 [DeskRu](https://deskru.ru) infrastructure.
-Pre-built binaries available in
+Pre-built releases available in
 [releases-clients](https://github.com/DeskRu/releases-clients/releases).*
