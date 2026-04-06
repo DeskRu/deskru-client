@@ -66,4 +66,4 @@
 
 ## Юридическое
 
-Форк RustDesk под AGPL-3.0. Обязательно указывать: "Разработано на основе RustDesk (rustdesk.com)" в About.
+DeskRu - Клиент на базе RustDesk (AGPL-3.0)
