@@ -1,0 +1,17 @@
+name: Build DeskRu macOS Client
+
+on:
+  workflow_dispatch:
+    inputs:
+      upload-artifact:
+        type: boolean
+        default: true
+        description: "Upload build artifacts"
+
+jobs:
+  build:
+    uses: ./.github/workflows/flutter-build.yml
+    secrets: inherit
+    with:
+      upload-artifact: ${{ inputs.upload-artifact }}
+      upload-tag: "deskru-macos"
