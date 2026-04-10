@@ -165,8 +165,17 @@ jobs:
           sed -i -e 's/MAXIMUM_UNMOUNTING_ATTEMPTS=3/MAXIMUM_UNMOUNTING_ATTEMPTS=7/' "$CREATE_DMG"
           create-dmg --volname "DeskRu Installer" --icon "DeskRu.app" 200 190 --hide-extension "DeskRu.app" --window-size 800 400 --app-drop-link 600 185 deskru-${{ env.VERSION }}-${{ matrix.job.arch }}.dmg ./flutter/build/macos/Build/Products/Release/DeskRu.app
 
-      - name: Upload DMG
+      - name: Upload DMG artifact
         uses: actions/upload-artifact@v4
         with:
           name: deskru-macos-${{ matrix.job.arch }}
           path: deskru-${{ env.VERSION }}-${{ matrix.job.arch }}.dmg
+
+      - name: Publish to releases-clients
+        uses: softprops/action-gh-release@v1
+        with:
+          repository: DeskRu/releases-clients
+          tag_name: v${{ env.VERSION }}
+          name: DeskRu v${{ env.VERSION }}
+          files: deskru-${{ env.VERSION }}-${{ matrix.job.arch }}.dmg
+          token: ${{ secrets.RELEASES_TOKEN }}
