@@ -1065,7 +1065,7 @@ fn get_api_server_(api: String, custom: String) -> String {
 #[inline]
 pub fn is_public(url: &str) -> bool {
     let url = url.to_ascii_lowercase();
-    url.contains("rustdesk.com/") || url.ends_with("rustdesk.com")
+    url.contains("deskru.ru/") || url.ends_with("deskru.ru")
 }
 
 pub fn get_udp_punch_enabled() -> bool {
@@ -2741,19 +2741,19 @@ mod tests {
 
     #[test]
     fn test_is_public() {
-        // Test URLs containing "rustdesk.com/"
-        assert!(is_public("https://rustdesk.com/"));
-        assert!(is_public("https://www.rustdesk.com/"));
-        assert!(is_public("https://api.rustdesk.com/v1"));
-        assert!(is_public("https://API.RUSTDESK.COM/v1"));
-        assert!(is_public("https://rustdesk.com/path"));
+        // Test URLs containing "deskru.ru/"
+        assert!(is_public("https://deskru.ru/"));
+        assert!(is_public("https://www.deskru.ru/"));
+        assert!(is_public("https://api.deskru.ru/v1"));
+        assert!(is_public("https://API.DESKRU.RU/v1"));
+        assert!(is_public("https://deskru.ru/path"));
 
-        // Test URLs ending with "rustdesk.com"
-        assert!(is_public("rustdesk.com"));
-        assert!(is_public("https://rustdesk.com"));
-        assert!(is_public("https://RustDesk.com"));
-        assert!(is_public("http://www.rustdesk.com"));
-        assert!(is_public("https://api.rustdesk.com"));
+        // Test URLs ending with "deskru.ru"
+        assert!(is_public("deskru.ru"));
+        assert!(is_public("https://deskru.ru"));
+        assert!(is_public("https://DeskRu.ru"));
+        assert!(is_public("http://www.deskru.ru"));
+        assert!(is_public("https://api.deskru.ru"));
 
         // Test non-public URLs
         assert!(!is_public("https://example.com"));
