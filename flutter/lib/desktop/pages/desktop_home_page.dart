@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hbb/common.dart';
 import 'package:flutter_hbb/common/widgets/animated_rotation_widget.dart';
 import 'package:flutter_hbb/common/widgets/custom_password.dart';
+import 'package:flutter_hbb/common/widgets/login.dart';
 import 'package:flutter_hbb/consts.dart';
 import 'package:flutter_hbb/desktop/pages/connection_page.dart';
 import 'package:flutter_hbb/desktop/pages/desktop_setting_page.dart';
@@ -81,11 +82,6 @@ class _DesktopHomePageState extends State<DesktopHomePage>
     final isOutgoingOnly = bind.isOutgoingOnly();
     final children = <Widget>[
       if (!isOutgoingOnly) buildPresetPasswordWarning(),
-      if (bind.isCustomClient())
-        Align(
-          alignment: Alignment.center,
-          child: loadPowered(context),
-        ),
       Align(
         alignment: Alignment.center,
         child: loadLogo(),
@@ -93,6 +89,8 @@ class _DesktopHomePageState extends State<DesktopHomePage>
       buildTip(context),
       if (!isOutgoingOnly) buildIDBoard(context),
       if (!isOutgoingOnly) buildPasswordBoard(context),
+      if (!isOutgoingOnly) buildAccountButton(context),
+      if (!isOutgoingOnly) buildSettingsButton(context),
       FutureBuilder<Widget>(
         future: Future.value(
             Obx(() => buildHelpCards(stateGlobal.updateUrl.value))),
@@ -208,23 +206,16 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                 children: [
                   Container(
                     height: 25,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          translate("ID"),
-                          style: TextStyle(
-                              fontSize: 14,
-                              color: Theme.of(context)
-                                  .textTheme
-                                  .titleLarge
-                                  ?.color
-                                  ?.withOpacity(0.5)),
-                        ).marginOnly(top: 5),
-                        buildPopupMenu(context)
-                      ],
-                    ),
+                    child: Text(
+                      translate("ID"),
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: Theme.of(context)
+                              .textTheme
+                              .titleLarge
+                              ?.color
+                              ?.withOpacity(0.5)),
+                    ).marginOnly(top: 5),
                   ),
                   Flexible(
                     child: GestureDetector(
@@ -252,31 +243,6 @@ class _DesktopHomePageState extends State<DesktopHomePage>
           ),
         ],
       ),
-    );
-  }
-
-  Widget buildPopupMenu(BuildContext context) {
-    final textColor = Theme.of(context).textTheme.titleLarge?.color;
-    RxBool hover = false.obs;
-    return InkWell(
-      onTap: DesktopTabPage.onAddSetting,
-      child: Tooltip(
-        message: translate('Settings'),
-        child: Obx(
-          () => CircleAvatar(
-            radius: 15,
-            backgroundColor: hover.value
-                ? Theme.of(context).scaffoldBackgroundColor
-                : Theme.of(context).colorScheme.background,
-            child: Icon(
-              Icons.more_vert_outlined,
-              size: 20,
-              color: hover.value ? textColor : textColor?.withOpacity(0.5),
-            ),
-          ),
-        ),
-      ),
-      onHover: (value) => hover.value = value,
     );
   }
 
@@ -384,6 +350,68 @@ class _DesktopHomePageState extends State<DesktopHomePage>
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget buildAccountButton(BuildContext context) {
+    return Obx(() {
+      final isLoggedIn = gFFI.userModel.userName.value.isNotEmpty;
+      return Container(
+        margin: const EdgeInsets.only(left: 20, right: 16, top: 8),
+        width: double.infinity,
+        child: TextButton.icon(
+          icon: Icon(
+            isLoggedIn ? Icons.logout : Icons.login,
+            size: 18,
+            color: isLoggedIn ? Colors.red[400] : Colors.white70,
+          ),
+          label: Text(
+            isLoggedIn
+                ? '${translate("Logout")} (${gFFI.userModel.userName.value})'
+                : translate("Login"),
+            style: TextStyle(
+              color: isLoggedIn ? Colors.red[400] : Colors.white70,
+              fontSize: 13,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+          style: TextButton.styleFrom(
+            alignment: Alignment.centerLeft,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          ),
+          onPressed: () {
+            isLoggedIn ? logOutConfirmDialog() : loginDialog();
+          },
+        ),
+      );
+    });
+  }
+
+  Widget buildSettingsButton(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(left: 20, right: 16, top: 0),
+      width: double.infinity,
+      child: TextButton.icon(
+        icon: Icon(
+          Icons.settings,
+          size: 18,
+          color: Colors.white70,
+        ),
+        label: Text(
+          translate("Settings"),
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 13,
+          ),
+        ),
+        style: TextButton.styleFrom(
+          alignment: Alignment.centerLeft,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        ),
+        onPressed: () {
+          DesktopTabPage.onAddSetting();
+        },
       ),
     );
   }
@@ -606,14 +634,9 @@ class _DesktopHomePageState extends State<DesktopHomePage>
               0, marginTop, 0, bind.isIncomingOnly() ? marginTop : 0),
           child: Container(
               decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: [
-                  Color.fromARGB(255, 226, 66, 188),
-                  Color.fromARGB(255, 244, 114, 124),
-                ],
-              )),
+                  color: Color(0xFF1E293B),
+                  borderRadius: BorderRadius.circular(8),
+              ),
               padding: EdgeInsets.all(20),
               child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -671,7 +694,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                                         style: TextStyle(
                                             decoration:
                                                 TextDecoration.underline,
-                                            color: Colors.white,
+                                            color: Colors.blue[300],
                                             fontSize: 12),
                                       )).marginOnly(top: 6)),
                             ]

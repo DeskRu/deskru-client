@@ -2045,11 +2045,8 @@ class _AccountState extends State<_Account> {
               borderRadius: BorderRadius.circular(10),
             ),
             child: Builder(builder: (context) {
-              final avatarWidget = _buildUserAvatar();
               return Row(
                 children: [
-                  if (avatarWidget != null) avatarWidget,
-                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -2086,15 +2083,6 @@ class _AccountState extends State<_Account> {
         )).marginOnly(left: 18, top: 16);
   }
 
-  Widget? _buildUserAvatar() {
-    // Resolve relative avatar path at display time
-    final avatar =
-        bind.mainResolveAvatarUrl(avatar: gFFI.userModel.avatar.value);
-    return buildAvatarWidget(
-      avatar: avatar,
-      size: 44,
-    );
-  }
 }
 
 class _Checkbox extends StatefulWidget {
