@@ -359,7 +359,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
         height: 28,
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: isLoggedIn ? Colors.grey.shade600 : MyTheme.accent,
+            backgroundColor: isLoggedIn ? Colors.red.shade600 : MyTheme.accent,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
