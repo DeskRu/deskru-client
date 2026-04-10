@@ -435,7 +435,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
   Widget buildHelpCards(String updateUrl) {
     if (updateUrl.isNotEmpty && !isCardClosed) {
       final isToUpdate = (isWindows || isMacOS) && bind.mainIsInstalled();
-      String btnText = isToUpdate ? 'Update' : 'Download';
+      String btnText = isToUpdate ? translate('Update') : translate('Download');
       GestureTapCallback onPressed = () async {
         final Uri url = Uri.parse('https://deskru.ru/download');
         await launchUrl(url);
@@ -446,12 +446,12 @@ class _DesktopHomePageState extends State<DesktopHomePage>
         };
       }
       return buildInstallCard(
-          "Status",
+          translate("check_update_tip"),
           "${translate("new-version-of-{${bind.mainGetAppNameSync()}}-tip")} (${bind.mainGetNewVersion()}).",
           btnText,
           onPressed,
           closeButton: true,
-          help: isToUpdate ? 'Changelog' : null,
+          help: isToUpdate ? translate('Changelog') : null,
           link: isToUpdate
               ? 'https://github.com/DeskRu/releases-clients/releases/tag/${bind.mainGetNewVersion()}'
               : null);
