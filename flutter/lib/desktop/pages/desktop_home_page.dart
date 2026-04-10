@@ -82,10 +82,6 @@ class _DesktopHomePageState extends State<DesktopHomePage>
     final isOutgoingOnly = bind.isOutgoingOnly();
     final children = <Widget>[
       if (!isOutgoingOnly) buildPresetPasswordWarning(),
-      Align(
-        alignment: Alignment.center,
-        child: loadLogo(),
-      ),
       buildTip(context),
       if (!isOutgoingOnly) buildIDBoard(context),
       if (!isOutgoingOnly) buildPasswordBoard(context),
@@ -358,31 +354,26 @@ class _DesktopHomePageState extends State<DesktopHomePage>
     return Obx(() {
       final isLoggedIn = gFFI.userModel.userName.value.isNotEmpty;
       return Container(
-        margin: const EdgeInsets.only(left: 20, right: 16, top: 8),
+        margin: const EdgeInsets.only(left: 20, right: 16, top: 13),
         width: double.infinity,
-        child: TextButton.icon(
-          icon: Icon(
-            isLoggedIn ? Icons.logout : Icons.login,
-            size: 18,
-            color: isLoggedIn ? Colors.red[400] : Colors.white70,
-          ),
-          label: Text(
-            isLoggedIn
-                ? '${translate("Logout")} (${gFFI.userModel.userName.value})'
-                : translate("Login"),
-            style: TextStyle(
-              color: isLoggedIn ? Colors.red[400] : Colors.white70,
-              fontSize: 13,
+        height: 28,
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: isLoggedIn ? Colors.grey.shade600 : MyTheme.accent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
             ),
-            overflow: TextOverflow.ellipsis,
-          ),
-          style: TextButton.styleFrom(
-            alignment: Alignment.centerLeft,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           ),
           onPressed: () {
             isLoggedIn ? logOutConfirmDialog() : loginDialog();
           },
+          child: Text(
+            isLoggedIn
+                ? '${translate("Logout")} (${gFFI.userModel.userName.value})'
+                : translate("Login"),
+            style: TextStyle(color: Colors.white, fontSize: 12),
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
       );
     });
@@ -390,28 +381,23 @@ class _DesktopHomePageState extends State<DesktopHomePage>
 
   Widget buildSettingsButton(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(left: 20, right: 16, top: 0),
+      margin: const EdgeInsets.only(left: 20, right: 16, top: 8),
       width: double.infinity,
-      child: TextButton.icon(
-        icon: Icon(
-          Icons.settings,
-          size: 18,
-          color: Colors.white70,
-        ),
-        label: Text(
-          translate("Settings"),
-          style: TextStyle(
-            color: Colors.white70,
-            fontSize: 13,
+      height: 28,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: MyTheme.accent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
           ),
-        ),
-        style: TextButton.styleFrom(
-          alignment: Alignment.centerLeft,
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         ),
         onPressed: () {
           DesktopTabPage.onAddSetting();
         },
+        child: Text(
+          translate("Settings"),
+          style: TextStyle(color: Colors.white, fontSize: 12),
+        ),
       ),
     );
   }

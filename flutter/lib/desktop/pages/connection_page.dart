@@ -313,8 +313,6 @@ class _ConnectionPageState extends State<ConnectionPage>
             Row(
               children: [
                 Flexible(child: _buildRemoteIDTextField(context)),
-                SizedBox(width: 12),
-                _buildAccountCard(context),
               ],
             ).marginOnly(top: 22),
             SizedBox(height: 12),
