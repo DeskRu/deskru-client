@@ -400,13 +400,15 @@ class _DesktopHomePageState extends State<DesktopHomePage>
           if (!isOutgoingOnly)
             Align(
               alignment: Alignment.centerLeft,
-              child: Image.asset(
-                'assets/app_logo.png',
-                height: 28,
-                fit: BoxFit.contain,
-                errorBuilder: (ctx, error, stackTrace) => Text(
-                  'DeskRu',
-                  style: Theme.of(context).textTheme.titleLarge,
+              child: Text(
+                'DeskRu',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.5,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white
+                      : const Color(0xFF1A2332),
                 ),
               ),
             ),
