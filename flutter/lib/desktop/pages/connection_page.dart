@@ -18,6 +18,7 @@ import '../../common.dart';
 import '../../common/formatter/id_formatter.dart';
 import '../../common/widgets/peer_tab_page.dart';
 import '../../common/widgets/autocomplete.dart';
+import '../../common/widgets/login.dart';
 import '../../models/platform_model.dart';
 import '../../desktop/widgets/material_mod_popup_menu.dart' as mod_menu;
 
@@ -312,6 +313,8 @@ class _ConnectionPageState extends State<ConnectionPage>
             Row(
               children: [
                 Flexible(child: _buildRemoteIDTextField(context)),
+                SizedBox(width: 12),
+                _buildAccountCard(context),
               ],
             ).marginOnly(top: 22),
             SizedBox(height: 12),
@@ -336,6 +339,64 @@ class _ConnectionPageState extends State<ConnectionPage>
         isFileTransfer: isFileTransfer,
         isViewCamera: isViewCamera,
         isTerminal: isTerminal);
+  }
+
+  Widget _buildAccountCard(BuildContext context) {
+    return Obx(() {
+      final isLogin = gFFI.userModel.isLogin;
+      final userName = gFFI.userModel.userName.value;
+      return Container(
+        width: 180,
+        padding: const EdgeInsets.fromLTRB(16, 24, 16, 22),
+        decoration: BoxDecoration(
+            borderRadius: const BorderRadius.all(Radius.circular(13)),
+            border:
+                Border.all(color: Theme.of(context).colorScheme.background)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.account_circle,
+              size: 36,
+              color: isLogin
+                  ? MyTheme.accent
+                  : Theme.of(context).textTheme.bodySmall?.color,
+            ),
+            SizedBox(height: 8),
+            if (isLogin)
+              Text(
+                userName,
+                style: Theme.of(context).textTheme.bodyMedium,
+                overflow: TextOverflow.ellipsis,
+              ),
+            SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      isLogin ? Colors.grey.shade600 : MyTheme.accent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                onPressed: () async {
+                  if (isLogin) {
+                    logOutConfirmDialog();
+                  } else {
+                    await loginDialog();
+                  }
+                },
+                child: Text(
+                  translate(isLogin ? 'Logout' : 'Login'),
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   /// UI for the remote ID TextField.

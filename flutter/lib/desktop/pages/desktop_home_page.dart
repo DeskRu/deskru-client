@@ -397,18 +397,19 @@ class _DesktopHomePageState extends State<DesktopHomePage>
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Column(
-            children: [
-              if (!isOutgoingOnly)
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    translate("Your Desktop"),
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
+          if (!isOutgoingOnly)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Image.asset(
+                'assets/app_logo.png',
+                height: 28,
+                fit: BoxFit.contain,
+                errorBuilder: (ctx, error, stackTrace) => Text(
+                  'DeskRu',
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
-            ],
-          ),
+              ),
+            ),
           SizedBox(
             height: 10.0,
           ),
