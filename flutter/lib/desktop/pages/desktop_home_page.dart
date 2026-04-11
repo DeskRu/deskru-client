@@ -49,6 +49,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
   var watchIsProcessTrust = false;
   var watchIsInputMonitoring = false;
   var watchIsCanRecordAudio = false;
+  var watchIsInstalledDaemon = false;
   Timer? _updateTimer;
   bool isCardClosed = false;
 
@@ -516,6 +517,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
           !bind.mainIsInstalledDaemon(prompt: false)) {
         return buildInstallCard("", "install_daemon_tip", "Install", () async {
           bind.mainIsInstalledDaemon(prompt: true);
+          watchIsInstalledDaemon = true;
         });
       }
       //// Disable microphone configuration for macOS. We will request the permission when needed.
@@ -737,6 +739,12 @@ class _DesktopHomePageState extends State<DesktopHomePage>
           // Monitoring may not take effect until the process is restarted.
           // rustDeskWinManager.call(
           //     WindowType.RemoteDesktop, kWindowDisableGrabKeyboard, '');
+          setState(() {});
+        }
+      }
+      if (watchIsInstalledDaemon) {
+        if (bind.mainIsInstalledDaemon(prompt: false)) {
+          watchIsInstalledDaemon = false;
           setState(() {});
         }
       }
