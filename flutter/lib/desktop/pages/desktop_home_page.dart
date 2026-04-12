@@ -493,28 +493,32 @@ class _DesktopHomePageState extends State<DesktopHomePage>
       }
     } else if (isMacOS) {
       final isOutgoingOnly = bind.isOutgoingOnly();
-      if (!(isOutgoingOnly || bind.mainIsCanScreenRecording(prompt: false))) {
-        return buildInstallCard("Permissions", "config_screen", "Configure",
-            () async {
-          bind.mainIsCanScreenRecording(prompt: true);
-          watchIsCanScreenRecording = true;
-        }, help: 'Help', link: translate("doc_mac_permission"));
-      } else if (!isOutgoingOnly && !bind.mainIsProcessTrusted(prompt: false)) {
-        return buildInstallCard("Permissions", "config_acc", "Configure",
-            () async {
-          bind.mainIsProcessTrusted(prompt: true);
-          watchIsProcessTrust = true;
-        }, help: 'Help', link: translate("doc_mac_permission"));
-      } else if (!bind.mainIsCanInputMonitoring(prompt: false)) {
-        return buildInstallCard("Permissions", "config_input", "Configure",
-            () async {
-          bind.mainIsCanInputMonitoring(prompt: true);
-          watchIsInputMonitoring = true;
-        }, help: 'Help', link: translate("doc_mac_permission"));
-      } else if (!isOutgoingOnly &&
+      final needScreen = !(isOutgoingOnly || bind.mainIsCanScreenRecording(prompt: false));
+      final needAcc = !isOutgoingOnly && !bind.mainIsProcessTrusted(prompt: false);
+      final needInput = !bind.mainIsCanInputMonitoring(prompt: false);
+      final needDaemon = !isOutgoingOnly &&
           !svcStopped.value &&
           bind.mainIsInstalled() &&
-          !bind.mainIsInstalledDaemon(prompt: false)) {
+          !bind.mainIsInstalledDaemon(prompt: false);
+
+      if (needScreen || needAcc || needInput) {
+        return buildInstallCard("Permissions", "config_screen", "Configure",
+            () async {
+          // Request all missing permissions at once
+          if (needScreen) {
+            bind.mainIsCanScreenRecording(prompt: true);
+            watchIsCanScreenRecording = true;
+          }
+          if (needAcc) {
+            bind.mainIsProcessTrusted(prompt: true);
+            watchIsProcessTrust = true;
+          }
+          if (needInput) {
+            bind.mainIsCanInputMonitoring(prompt: true);
+            watchIsInputMonitoring = true;
+          }
+        }, help: 'Help', link: translate("doc_mac_permission"));
+      } else if (needDaemon) {
         return buildInstallCard("", "install_daemon_tip", "Install", () async {
           bind.mainIsInstalledDaemon(prompt: true);
           watchIsInstalledDaemon = true;

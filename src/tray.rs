@@ -179,10 +179,15 @@ fn make_tray() -> hbb_common::ResultType<()> {
                 if event.id == quit_i.id() {
                     #[cfg(target_os = "macos")]
                     {
-                        // Just quit the agent process, keep daemon running
-                        let _ = crate::ipc::close_all_instances();
-                        std::thread::sleep(std::time::Duration::from_millis(300));
-                        crate::platform::macos::quit_gui();
+                        // Unload agent via launchctl so macOS won't restart it (KeepAlive).
+                        // Daemon stays running - permissions preserved.
+                        let agent_label = format!("{}_server", crate::get_full_name());
+                        std::process::Command::new("launchctl")
+                            .args(&["remove", &agent_label])
+                            .status()
+                            .ok();
+                        *control_flow = ControlFlow::Exit;
+                        return;
                     }
                     #[cfg(not(target_os = "macos"))]
                     {

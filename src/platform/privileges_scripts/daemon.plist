@@ -5,6 +5,9 @@
         <key>Label</key>
         <string>ru.deskru.DeskRu_service</string>
 
+        <key>AssociatedBundleIdentifiers</key>
+        <string>ru.deskru.client</string>
+
         <key>KeepAlive</key>
         <true/>
         <key>ThrottleInterval</key>

@@ -5,6 +5,9 @@
         <key>Label</key>
         <string>ru.deskru.DeskRu_server</string>
 
+        <key>AssociatedBundleIdentifiers</key>
+        <string>ru.deskru.client</string>
+
         <key>LimitLoadToSessionType</key>
         <array>
           <string>LoginWindow</string>
