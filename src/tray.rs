@@ -54,15 +54,22 @@ fn make_tray() -> hbb_common::ResultType<()> {
     let mut event_loop = EventLoopBuilder::new().build();
 
     let tray_menu = Menu::new();
-    let hide_stop_service = crate::ui_interface::get_builtin_option(
-        hbb_common::config::keys::OPTION_HIDE_STOP_SERVICE,
-    ) == "Y";
-    // The tray icon is only shown when the service is running, so we don't need to check
-    // the `stop-service` option here.
-    let quit_i = if !hide_stop_service {
-        Some(MenuItem::new(translate("Stop service".to_owned()), true, None))
-    } else {
-        None
+    #[cfg(target_os = "macos")]
+    let quit_i = {
+        // On macOS, "Quit" just exits the agent process without uninstalling the daemon.
+        // The daemon keeps running so permissions are preserved on next launch.
+        Some(MenuItem::new(translate("Quit".to_owned()), true, None))
+    };
+    #[cfg(not(target_os = "macos"))]
+    let quit_i = {
+        let hide_stop_service = crate::ui_interface::get_builtin_option(
+            hbb_common::config::keys::OPTION_HIDE_STOP_SERVICE,
+        ) == "Y";
+        if !hide_stop_service {
+            Some(MenuItem::new(translate("Stop service".to_owned()), true, None))
+        } else {
+            None
+        }
     };
     let open_i = MenuItem::new(translate("Open".to_owned()), true, None);
     if let Some(quit_i) = &quit_i {
@@ -170,14 +177,18 @@ fn make_tray() -> hbb_common::ResultType<()> {
         if let Ok(event) = menu_channel.try_recv() {
             if let Some(quit_i) = &quit_i {
                 if event.id == quit_i.id() {
-                    /* failed in windows, seems no permission to check system process
-                    if !crate::check_process("--server", false) {
-                        *control_flow = ControlFlow::Exit;
-                        return;
+                    #[cfg(target_os = "macos")]
+                    {
+                        // Just quit the agent process, keep daemon running
+                        let _ = crate::ipc::close_all_instances();
+                        std::thread::sleep(std::time::Duration::from_millis(300));
+                        crate::platform::macos::quit_gui();
                     }
-                    */
-                    if !crate::platform::uninstall_service(false, false) {
-                        *control_flow = ControlFlow::Exit;
+                    #[cfg(not(target_os = "macos"))]
+                    {
+                        if !crate::platform::uninstall_service(false, false) {
+                            *control_flow = ControlFlow::Exit;
+                        }
                     }
                 } else if event.id == open_i.id() {
                     open_func();
