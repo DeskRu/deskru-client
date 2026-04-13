@@ -41,6 +41,14 @@ fn make_tray() -> hbb_common::ResultType<()> {
     }
 
     let (icon_rgba, icon_width, icon_height) = {
+        // On macOS, always use the built-in template icon (44x44).
+        // load_icon_from_asset() returns the large app icon which renders
+        // as a white square in the menu bar.
+        #[cfg(target_os = "macos")]
+        let image = image::load_from_memory(icon)
+            .context("Failed to open icon path")?
+            .into_rgba8();
+        #[cfg(not(target_os = "macos"))]
         let image = load_icon_from_asset()
             .unwrap_or(image::load_from_memory(icon).context("Failed to open icon path")?)
             .into_rgba8();
