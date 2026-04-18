@@ -30,6 +30,7 @@ env:
 jobs:
   generate-bridge:
     uses: ./.github/workflows/bridge.yml
+    secrets: inherit
 
   build-macos:
     name: macOS ${{ matrix.job.arch }}
