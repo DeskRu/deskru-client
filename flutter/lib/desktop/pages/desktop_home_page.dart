@@ -88,6 +88,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
       if (!isOutgoingOnly) buildPasswordBoard(context),
       if (!isOutgoingOnly) buildAccountButton(context),
       if (!isOutgoingOnly) buildSettingsButton(context),
+      if (!isOutgoingOnly) buildEnrollmentCard(context),
       FutureBuilder<Widget>(
         future: Future.value(
             Obx(() => buildHelpCards(stateGlobal.updateUrl.value))),
@@ -400,6 +401,195 @@ class _DesktopHomePageState extends State<DesktopHomePage>
           style: TextStyle(color: Colors.white, fontSize: 12),
         ),
       ),
+    );
+  }
+
+  // DeskRu: org enrollment card. Visible if device is not yet bound to an org;
+  // shows an "Already enrolled" pill once a token has been redeemed.
+  Widget buildEnrollmentCard(BuildContext context) {
+    return StatefulBuilder(
+      builder: (context, setLocalState) {
+        final orgName = bind.mainGetEnrollmentOrgName();
+        if (orgName.isNotEmpty) {
+          return Container(
+            margin: const EdgeInsets.only(left: 20, right: 16, top: 10),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1F4D2A),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: const Color(0xFF41CE5C), width: 1),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.business_rounded,
+                    size: 16, color: const Color(0xFF7FE08F)),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    orgName,
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                InkWell(
+                  onTap: () {
+                    bind.mainClearEnrollment();
+                    setLocalState(() {});
+                  },
+                  child: const Padding(
+                    padding: EdgeInsets.all(2.0),
+                    child: Icon(Icons.close_rounded,
+                        size: 14, color: Color(0xFF7FE08F)),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+        return Container(
+          margin: const EdgeInsets.only(left: 20, right: 16, top: 8),
+          width: double.infinity,
+          height: 28,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF1E293B),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+                side: const BorderSide(color: Color(0xFF334155), width: 1),
+              ),
+            ),
+            onPressed: () =>
+                _showEnrollmentDialog(context, () => setLocalState(() {})),
+            child: Text(
+              translate("Connect to organization"),
+              style: const TextStyle(color: Colors.white, fontSize: 12),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showEnrollmentDialog(BuildContext context, VoidCallback onDone) {
+    final controller = TextEditingController();
+    showDialog<void>(
+      context: context,
+      builder: (dialogCtx) {
+        bool submitting = false;
+        String? error;
+        String? success;
+
+        return StatefulBuilder(
+          builder: (ctx, setDialogState) {
+            Future<void> submit() async {
+              final token = controller.text.trim();
+              if (token.isEmpty) {
+                setDialogState(() => error = translate("Token is required"));
+                return;
+              }
+              setDialogState(() {
+                submitting = true;
+                error = null;
+                success = null;
+              });
+              final raw = bind.mainEnrollWithToken(token: token);
+              try {
+                final parsed = jsonDecode(raw) as Map<String, dynamic>;
+                if (parsed['ok'] == true) {
+                  final org = (parsed['organization'] ?? '') as String;
+                  setDialogState(() {
+                    success = org.isNotEmpty
+                        ? '${translate("Connected to")}: $org'
+                        : translate("Connected");
+                    submitting = false;
+                  });
+                  onDone();
+                  await Future.delayed(const Duration(milliseconds: 1200));
+                  if (Navigator.of(dialogCtx).canPop()) {
+                    Navigator.of(dialogCtx).pop();
+                  }
+                } else {
+                  setDialogState(() {
+                    error = (parsed['error'] ?? translate("Unknown error"))
+                        .toString();
+                    submitting = false;
+                  });
+                }
+              } catch (_) {
+                setDialogState(() {
+                  error = translate("Bad server response");
+                  submitting = false;
+                });
+              }
+            }
+
+            return AlertDialog(
+              title: Text(translate("Connect to organization")),
+              content: SizedBox(
+                width: 360,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      translate(
+                          "Paste the invitation code your administrator sent you. The device will be added to the organization automatically."),
+                      style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(ctx)
+                              .textTheme
+                              .bodySmall
+                              ?.color),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: controller,
+                      autofocus: true,
+                      enabled: !submitting,
+                      decoration: InputDecoration(
+                        hintText: translate("Invitation code"),
+                        border: const OutlineInputBorder(),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 10),
+                      ),
+                      onSubmitted: (_) => submit(),
+                    ),
+                    if (error != null) ...[
+                      const SizedBox(height: 10),
+                      Text(error!,
+                          style: const TextStyle(
+                              color: Color(0xFFE57373), fontSize: 12)),
+                    ],
+                    if (success != null) ...[
+                      const SizedBox(height: 10),
+                      Text(success!,
+                          style: const TextStyle(
+                              color: Color(0xFF7FE08F), fontSize: 12)),
+                    ],
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed:
+                      submitting ? null : () => Navigator.of(dialogCtx).pop(),
+                  child: Text(translate("Cancel")),
+                ),
+                ElevatedButton(
+                  onPressed: submitting ? null : submit,
+                  child: Text(submitting
+                      ? translate("Connecting...")
+                      : translate("Connect")),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 

@@ -1287,6 +1287,130 @@ pub fn main_get_uuid() -> String {
     get_uuid()
 }
 
+// DeskRu enrollment: claim an org-scoped device token. Server-side endpoint
+// POST https://deskru.ru/api/public/enroll with {token, device_id, hostname,
+// platform, version}. On success the device is automatically attached to the
+// org behind the token and we persist the org info into LocalConfig.
+//
+// Returns a JSON string:
+//   on success:  {"ok":true,"organization":"...","organization_id":"..."}
+//   on failure:  {"ok":false,"error":"..."}
+//
+// Sync — runs on the FRB worker isolate, the UI thread is not blocked.
+pub fn main_enroll_with_token(token: String) -> SyncReturn<String> {
+    let result = (|| -> Result<serde_json::Value, String> {
+        let token = token.trim().to_string();
+        if token.is_empty() {
+            return Err("Empty token".to_string());
+        }
+
+        let device_id = get_id();
+        if device_id.is_empty() {
+            return Err("No device id yet — try again in a few seconds".to_string());
+        }
+
+        let api = crate::ui_interface::get_api_server();
+        if api.is_empty() {
+            return Err("No API server configured".to_string());
+        }
+        let url = format!("{}/api/public/enroll", api.trim_end_matches('/'));
+
+        let hostname = hbb_common::whoami::hostname();
+        let platform = std::env::consts::OS.to_string();
+        let version = crate::VERSION.to_string();
+
+        let body = serde_json::json!({
+            "token": token,
+            "device_id": device_id,
+            "hostname": hostname,
+            "platform": platform,
+            "version": version,
+        });
+        let header = r#"{"Content-Type":"application/json"}"#.to_string();
+
+        let raw = crate::common::http_request_sync(
+            url,
+            "POST".to_string(),
+            Some(body.to_string()),
+            header,
+        )
+        .map_err(|e| format!("Network error: {}", e))?;
+
+        // http_request_sync returns {"status_code":N,"headers":{...},"body":"..."}
+        let envelope: serde_json::Value =
+            serde_json::from_str(&raw).map_err(|e| format!("Bad envelope: {}", e))?;
+
+        let status = envelope
+            .get("status_code")
+            .and_then(|v| v.as_u64())
+            .unwrap_or(0);
+        let body_str = envelope
+            .get("body")
+            .and_then(|v| v.as_str())
+            .unwrap_or("");
+        let body_json: serde_json::Value =
+            serde_json::from_str(body_str).unwrap_or(serde_json::json!({}));
+
+        if status >= 200 && status < 300 {
+            Ok(body_json)
+        } else {
+            let msg = body_json
+                .get("error")
+                .and_then(|v| v.as_str())
+                .unwrap_or("Unknown error")
+                .to_string();
+            Err(msg)
+        }
+    })();
+
+    match result {
+        Ok(body) => {
+            let org_id = body
+                .get("organization_id")
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .to_string();
+            let org_name = body
+                .get("organization")
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .to_string();
+            // Persist enrollment state (LocalConfig is per-machine and survives restarts).
+            set_local_option("deskru-enrollment-org-id".to_string(), org_id.clone());
+            set_local_option("deskru-enrollment-org-name".to_string(), org_name.clone());
+            log::info!(
+                "[deskru-enroll] success org={} id={}",
+                org_name,
+                org_id
+            );
+            SyncReturn(
+                serde_json::json!({
+                    "ok": true,
+                    "organization": org_name,
+                    "organization_id": org_id,
+                })
+                .to_string(),
+            )
+        }
+        Err(e) => {
+            log::warn!("[deskru-enroll] failed: {}", e);
+            SyncReturn(serde_json::json!({"ok": false, "error": e}).to_string())
+        }
+    }
+}
+
+pub fn main_get_enrollment_org_name() -> SyncReturn<String> {
+    SyncReturn(get_local_option(
+        "deskru-enrollment-org-name".to_string(),
+    ))
+}
+
+pub fn main_clear_enrollment() -> SyncReturn<()> {
+    set_local_option("deskru-enrollment-org-id".to_string(), "".to_string());
+    set_local_option("deskru-enrollment-org-name".to_string(), "".to_string());
+    SyncReturn(())
+}
+
 pub fn main_get_peer_option(id: String, key: String) -> String {
     get_peer_option(id, key)
 }
