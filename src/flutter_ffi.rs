@@ -1370,23 +1370,30 @@ pub fn main_enroll_with_token(token: String) -> SyncReturn<String> {
                 .and_then(|v| v.as_str())
                 .unwrap_or("")
                 .to_string();
-            let org_name = body
-                .get("organization")
+            // Prefer organization_display (v2.0.7+ server) — it's the client-safe label
+            // the admin explicitly picked. Fall back to organization (legacy, v2.0.6 servers).
+            let org_display = body
+                .get("organization_display")
                 .and_then(|v| v.as_str())
+                .filter(|s| !s.is_empty())
+                .or_else(|| body.get("organization").and_then(|v| v.as_str()))
                 .unwrap_or("")
                 .to_string();
             // Persist enrollment state (LocalConfig is per-machine and survives restarts).
             set_local_option("deskru-enrollment-org-id".to_string(), org_id.clone());
-            set_local_option("deskru-enrollment-org-name".to_string(), org_name.clone());
+            set_local_option(
+                "deskru-enrollment-org-name".to_string(),
+                org_display.clone(),
+            );
             log::info!(
                 "[deskru-enroll] success org={} id={}",
-                org_name,
+                org_display,
                 org_id
             );
             SyncReturn(
                 serde_json::json!({
                     "ok": true,
-                    "organization": org_name,
+                    "organization": org_display,
                     "organization_id": org_id,
                 })
                 .to_string(),
@@ -1409,6 +1416,94 @@ pub fn main_clear_enrollment() -> SyncReturn<()> {
     set_local_option("deskru-enrollment-org-id".to_string(), "".to_string());
     set_local_option("deskru-enrollment-org-name".to_string(), "".to_string());
     SyncReturn(())
+}
+
+// DeskRu: poll the server whether this device is still enrolled. Called from the
+// Flutter side every 30s while the "bound" plate is shown. On enrolled=false we
+// clear LocalConfig so the plate disappears.
+//
+// Returns JSON: {"ok":true,"enrolled":bool,"organization_id":"...","organization_display":"..."}
+//        or    {"ok":false,"error":"..."}
+//
+// IMPORTANT: on network errors we return ok=false so the caller keeps the plate —
+// we never clear state on transient failures.
+pub fn main_check_enrollment_status() -> SyncReturn<String> {
+    let device_id = get_id();
+    if device_id.is_empty() {
+        return SyncReturn(
+            serde_json::json!({"ok": false, "error": "no device id yet"}).to_string(),
+        );
+    }
+    let api = crate::ui_interface::get_api_server();
+    if api.is_empty() {
+        return SyncReturn(
+            serde_json::json!({"ok": false, "error": "no api server"}).to_string(),
+        );
+    }
+    let url = format!(
+        "{}/api/public/enrollment-status?device_id={}",
+        api.trim_end_matches('/'),
+        device_id
+    );
+    let header = r#"{"Content-Type":"application/json"}"#.to_string();
+
+    let raw = match crate::common::http_request_sync(url, "GET".to_string(), None, header) {
+        Ok(r) => r,
+        Err(e) => {
+            return SyncReturn(
+                serde_json::json!({"ok": false, "error": format!("Network error: {}", e)})
+                    .to_string(),
+            );
+        }
+    };
+
+    let envelope: serde_json::Value = match serde_json::from_str(&raw) {
+        Ok(v) => v,
+        Err(e) => {
+            return SyncReturn(
+                serde_json::json!({"ok": false, "error": format!("Bad envelope: {}", e)})
+                    .to_string(),
+            );
+        }
+    };
+
+    let status = envelope
+        .get("status_code")
+        .and_then(|v| v.as_u64())
+        .unwrap_or(0);
+    if !(200..300).contains(&status) {
+        return SyncReturn(
+            serde_json::json!({"ok": false, "error": format!("HTTP {}", status)}).to_string(),
+        );
+    }
+    let body_str = envelope.get("body").and_then(|v| v.as_str()).unwrap_or("");
+    let body_json: serde_json::Value =
+        serde_json::from_str(body_str).unwrap_or(serde_json::json!({}));
+
+    let enrolled = body_json
+        .get("enrolled")
+        .and_then(|v| v.as_bool())
+        .unwrap_or(false);
+    let org_id = body_json
+        .get("organization_id")
+        .and_then(|v| v.as_str())
+        .unwrap_or("")
+        .to_string();
+    let org_display = body_json
+        .get("organization_display")
+        .and_then(|v| v.as_str())
+        .unwrap_or("")
+        .to_string();
+
+    SyncReturn(
+        serde_json::json!({
+            "ok": true,
+            "enrolled": enrolled,
+            "organization_id": org_id,
+            "organization_display": org_display,
+        })
+        .to_string(),
+    )
 }
 
 pub fn main_get_peer_option(id: String, key: String) -> String {

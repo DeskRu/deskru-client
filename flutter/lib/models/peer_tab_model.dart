@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_hbb/consts.dart';
 import 'package:flutter_hbb/models/peer_model.dart';
 import 'package:flutter_hbb/models/platform_model.dart';
@@ -30,12 +31,15 @@ class PeerTabModel with ChangeNotifier {
     'Address book',
     'Accessible devices',
   ];
-  static const List<IconData> icons = [
-    Icons.access_time_filled,
-    Icons.star,
-    Icons.explore,
-    IconFont.addressBook,
-    IconFont.deviceGroupFill,
+  // Phosphor-style modern icons (DeskRu v2.0.7). We import PhosphorIconsFill
+  // only where these icons are resolved to reuse the single unified style
+  // the web admin (@phosphor-icons/react) already uses.
+  static final List<IconData> icons = [
+    PhosphorIconsFill.clockCounterClockwise,
+    PhosphorIconsFill.star,
+    PhosphorIconsFill.wifiHigh,
+    PhosphorIconsFill.addressBook,
+    PhosphorIconsFill.monitor,
   ];
   List<bool> isEnabled = List.from([
     true,
