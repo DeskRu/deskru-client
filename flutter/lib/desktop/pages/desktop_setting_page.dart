@@ -10,6 +10,7 @@ import 'package:flutter_hbb/common/widgets/audio_input.dart';
 import 'package:flutter_hbb/common/widgets/dt/dt_button.dart';
 import 'package:flutter_hbb/common/widgets/dt/dt_radio.dart';
 import 'package:flutter_hbb/common/widgets/dt/dt_status_pill.dart';
+import 'package:flutter_hbb/common/widgets/dt/dt_toggle.dart';
 import 'package:flutter_hbb/common/widgets/setting_widgets.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_hbb/consts.dart';
@@ -2534,10 +2535,6 @@ Widget _OptionCheckBox(
     child: Obx(
       () => Row(
         children: [
-          Checkbox(
-                  value: ref.value,
-                  onChanged: enabled && !isOptFixed ? onChanged : null)
-              .marginOnly(right: 5),
           Offstage(
             offstage: !ref.value || checkedIcon == null,
             child: checkedIcon?.marginOnly(right: 5),
@@ -2546,7 +2543,12 @@ Widget _OptionCheckBox(
               child: Text(
             translate(label),
             style: TextStyle(color: disabledTextColor(context, enabled)),
-          ))
+          )),
+          const SizedBox(width: 8),
+          DtToggle(
+            value: ref.value,
+            onChanged: enabled && !isOptFixed ? onChanged : null,
+          ),
         ],
       ),
     ).marginOnly(left: _kCheckBoxLeftMargin),
