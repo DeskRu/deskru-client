@@ -40,7 +40,6 @@ const double _kCardLeftMargin = 15;
 const double _kContentHMargin = 15;
 const double _kContentHSubMargin = _kContentHMargin + 33;
 const double _kCheckBoxLeftMargin = 10;
-const double _kRadioLeftMargin = 10;
 const double _kListViewBottomMargin = 15;
 const double _kTitleFontSize = 20;
 const double _kContentFontSize = 15;
@@ -974,26 +973,25 @@ class _SafetyState extends State<_Safety> with AutomaticKeepAliveClientMixin {
       }
 
       final tfa = GestureDetector(
-        child: InkWell(
-          child: Obx(() => Row(
-                children: [
-                  Checkbox(
-                          value: has2fa.value,
-                          onChanged: enabled ? onChanged : null)
-                      .marginOnly(right: 5),
-                  Expanded(
-                      child: Text(
-                    translate('enable-2fa-title'),
-                    style:
-                        TextStyle(color: disabledTextColor(context, enabled)),
-                  ))
-                ],
-              )),
-        ),
+        behavior: HitTestBehavior.opaque,
+        child: Obx(() => Row(
+              children: [
+                Expanded(
+                    child: Text(
+                  translate('enable-2fa-title'),
+                  style: TextStyle(color: disabledTextColor(context, enabled)),
+                )),
+                const SizedBox(width: 8),
+                DtToggle(
+                  value: has2fa.value,
+                  onChanged: enabled ? (v) => onChanged(v) : null,
+                ),
+              ],
+            )),
         onTap: () {
           onChanged(!has2fa.value);
         },
-      ).marginOnly(left: _kCheckBoxLeftMargin);
+      ).marginOnly(left: _kCheckBoxLeftMargin, top: 5, bottom: 5);
       if (!has2fa.value) {
         return tfa;
       }
@@ -1014,29 +1012,30 @@ class _SafetyState extends State<_Safety> with AutomaticKeepAliveClientMixin {
       }
 
       final bot = GestureDetector(
+        behavior: HitTestBehavior.opaque,
         child: Tooltip(
           waitDuration: Duration(milliseconds: 300),
           message: translate("enable-bot-tip"),
-          child: InkWell(
-              child: Obx(() => Row(
-                    children: [
-                      Checkbox(
-                              value: hasBot.value,
-                              onChanged: enabled ? onChangedBot : null)
-                          .marginOnly(right: 5),
-                      Expanded(
-                          child: Text(
-                        translate('Telegram bot'),
-                        style: TextStyle(
-                            color: disabledTextColor(context, enabled)),
-                      ))
-                    ],
-                  ))),
+          child: Obx(() => Row(
+                children: [
+                  Expanded(
+                      child: Text(
+                    translate('Telegram bot'),
+                    style:
+                        TextStyle(color: disabledTextColor(context, enabled)),
+                  )),
+                  const SizedBox(width: 8),
+                  DtToggle(
+                    value: hasBot.value,
+                    onChanged: enabled ? (v) => onChangedBot(v) : null,
+                  ),
+                ],
+              )),
         ),
         onTap: () {
           onChangedBot(!hasBot.value);
         },
-      ).marginOnly(left: _kCheckBoxLeftMargin + 30);
+      ).marginOnly(left: _kCheckBoxLeftMargin + 30, top: 5, bottom: 5);
 
       final trust = Row(
         children: [
@@ -2640,28 +2639,11 @@ Widget _Radio<T>(BuildContext context,
     required String label,
     required Function(T value)? onChanged,
     bool autoNewLine = true}) {
-  final onChange2 = onChanged != null
-      ? (T? value) {
-          if (value != null) {
-            onChanged(value);
-          }
-        }
-      : null;
-  return GestureDetector(
-    child: Row(
-      children: [
-        Radio<T>(value: value, groupValue: groupValue, onChanged: onChange2),
-        Expanded(
-          child: Text(translate(label),
-                  overflow: autoNewLine ? null : TextOverflow.ellipsis,
-                  style: TextStyle(
-                      fontSize: _kContentFontSize,
-                      color: disabledTextColor(context, onChange2 != null)))
-              .marginOnly(left: 5),
-        ),
-      ],
-    ).marginOnly(left: _kRadioLeftMargin),
-    onTap: () => onChange2?.call(value),
+  return DtRadio<T>(
+    value: value,
+    groupValue: groupValue,
+    onChanged: onChanged,
+    label: translate(label),
   );
 }
 

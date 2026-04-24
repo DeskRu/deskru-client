@@ -75,10 +75,10 @@ class DtButton extends StatelessWidget {
         pressedOverlay = Colors.black.withOpacity(0.08);
         break;
       case DtButtonVariant.ghost:
-        bg = Colors.transparent;
+        bg = c.surface2;
         fg = c.text;
         side = BorderSide(color: c.borderStrong);
-        hoverOverlay = c.surface2;
+        hoverOverlay = c.surface3;
         pressedOverlay = c.surface3;
         break;
       case DtButtonVariant.danger:
@@ -91,7 +91,7 @@ class DtButton extends StatelessWidget {
       case DtButtonVariant.dangerGhost:
         bg = Colors.transparent;
         fg = c.danger;
-        side = BorderSide(color: c.borderStrong);
+        side = BorderSide(color: c.danger.withOpacity(0.35));
         hoverOverlay = c.danger.withOpacity(0.08);
         pressedOverlay = c.danger.withOpacity(0.14);
         break;
