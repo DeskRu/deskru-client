@@ -8,8 +8,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hbb/common.dart';
 import 'package:flutter_hbb/common/widgets/audio_input.dart';
 import 'package:flutter_hbb/common/widgets/dt/dt_button.dart';
+import 'package:flutter_hbb/common/widgets/dt/dt_radio.dart';
 import 'package:flutter_hbb/common/widgets/dt/dt_status_pill.dart';
 import 'package:flutter_hbb/common/widgets/setting_widgets.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_hbb/consts.dart';
 import 'package:flutter_hbb/desktop/pages/desktop_home_page.dart';
 import 'package:flutter_hbb/desktop/pages/desktop_tab_page.dart';
@@ -436,22 +438,30 @@ class _GeneralState extends State<_General> {
     }
 
     final isOptFixed = isOptionFixed(kCommConfKeyTheme);
+    final handler = isOptFixed ? null : onChanged;
+
     return _Card(title: 'Theme', children: [
-      _Radio<String>(context,
-          value: 'light',
-          groupValue: current,
-          label: 'Light',
-          onChanged: isOptFixed ? null : onChanged),
-      _Radio<String>(context,
-          value: 'dark',
-          groupValue: current,
-          label: 'Dark',
-          onChanged: isOptFixed ? null : onChanged),
-      _Radio<String>(context,
-          value: 'system',
-          groupValue: current,
-          label: 'Follow System',
-          onChanged: isOptFixed ? null : onChanged),
+      DtRadio<String>(
+        value: 'light',
+        groupValue: current,
+        onChanged: handler,
+        label: translate('Light'),
+        icon: PhosphorIcons.sun(),
+      ),
+      DtRadio<String>(
+        value: 'dark',
+        groupValue: current,
+        onChanged: handler,
+        label: translate('Dark'),
+        icon: PhosphorIcons.moon(),
+      ),
+      DtRadio<String>(
+        value: 'system',
+        groupValue: current,
+        onChanged: handler,
+        label: translate('Follow System'),
+        icon: PhosphorIcons.desktop(),
+      ),
     ]);
   }
 
