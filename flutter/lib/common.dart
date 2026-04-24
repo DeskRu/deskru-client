@@ -250,18 +250,19 @@ class ColorThemeExtension extends ThemeExtension<ColorThemeExtension> {
 class MyTheme {
   MyTheme._();
 
-  static const Color grayBg = Color(0xFFEFEFF2);
-  static const Color accent = Color(0xFF0071FF);
-  static const Color accent50 = Color(0x770071FF);
-  static const Color accent80 = Color(0xAA0071FF);
+  // v2.0.7 visual refresh tokens. See common/design_tokens.dart for reference.
+  static const Color grayBg = Color(0xFFF5F4F0); // DtColors.light.surface2
+  static const Color accent = Color(0xFF2E6BE0); // DtColors.light.accent
+  static const Color accent50 = Color(0x772E6BE0);
+  static const Color accent80 = Color(0xAA2E6BE0);
   static const Color canvasColor = Color(0xFF212121);
-  static const Color border = Color(0xFFCCCCCC);
+  static const Color border = Color(0xFFE7E5E0); // DtColors.light.border
   static const Color idColor = Color(0xFF00B6F0);
   static const Color darkGray = Color.fromARGB(255, 148, 148, 148);
   static const Color cmIdColor = Color(0xFF21790B);
   static const Color dark = Colors.black87;
-  static const Color button = Color(0xFF2C8CFF);
-  static const Color hoverBorder = Color(0xFF999999);
+  static const Color button = Color(0xFF2E6BE0); // unified with accent
+  static const Color hoverBorder = Color(0xFFDCD9D2); // DtColors.light.borderStrong
 
   // ListTile
   static const ListTileThemeData listTileTheme = ListTileThemeData(
@@ -375,19 +376,19 @@ class MyTheme {
     // https://stackoverflow.com/questions/77537315/after-upgrading-to-flutter-3-16-the-app-bar-background-color-button-size-and
     useMaterial3: false,
     brightness: Brightness.light,
-    hoverColor: Color.fromARGB(255, 224, 224, 224),
-    scaffoldBackgroundColor: Colors.white,
-    dialogBackgroundColor: Colors.white,
+    hoverColor: Color(0xFFF5F4F0), // DtColors.light.surface2
+    scaffoldBackgroundColor: Color(0xFFFAFAF9), // DtColors.light.bg (warm off-white)
+    dialogBackgroundColor: Color(0xFFFFFFFF), // DtColors.light.surface
     appBarTheme: AppBarTheme(
       shadowColor: Colors.transparent,
     ),
     dialogTheme: DialogTheme(
       elevation: 15,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18.0),
+        borderRadius: BorderRadius.circular(14.0), // DtRadius.xl
         side: BorderSide(
           width: 1,
-          color: grayBg,
+          color: Color(0xFFE7E5E0), // DtColors.light.border
         ),
       ),
     ),
@@ -409,8 +410,8 @@ class MyTheme {
         bodyMedium:
             TextStyle(fontSize: 14, color: Colors.black87, height: 1.25),
         labelLarge: TextStyle(fontSize: 16.0, color: MyTheme.accent80)),
-    cardColor: grayBg,
-    hintColor: Color(0xFFAAAAAA),
+    cardColor: Color(0xFFFFFFFF), // DtColors.light.surface
+    hintColor: Color(0xFFA1A1AA), // DtColors.light.text3
     visualDensity: VisualDensity.adaptivePlatformDensity,
     tabBarTheme: const TabBarTheme(
       labelColor: Colors.black87,
@@ -439,8 +440,12 @@ class MyTheme {
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        backgroundColor: grayBg,
-        foregroundColor: Colors.black87,
+        backgroundColor: Colors.transparent, // ghost-style per spec §4.1
+        foregroundColor: Color(0xFF111827), // DtColors.light.text
+        side: BorderSide(
+          color: Color(0xFFDCD9D2), // DtColors.light.borderStrong
+          width: 1,
+        ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8.0),
         ),
@@ -451,8 +456,8 @@ class MyTheme {
     checkboxTheme: checkboxTheme,
     listTileTheme: listTileTheme,
     menuBarTheme: MenuBarThemeData(
-        style:
-            MenuStyle(backgroundColor: MaterialStatePropertyAll(Colors.white))),
+        style: MenuStyle(
+            backgroundColor: MaterialStatePropertyAll(Color(0xFFFFFFFF)))),
     colorScheme: ColorScheme.light(
         primary: Colors.blue, secondary: accent, background: grayBg),
     popupMenuTheme: PopupMenuThemeData(
@@ -473,26 +478,26 @@ class MyTheme {
   static ThemeData darkTheme = ThemeData(
     useMaterial3: false,
     brightness: Brightness.dark,
-    hoverColor: Color.fromARGB(255, 45, 46, 53),
-    scaffoldBackgroundColor: Color(0xFF18191E),
-    dialogBackgroundColor: Color(0xFF18191E),
+    hoverColor: Color(0xFF1A1D25), // DtColors.dark.surface2
+    scaffoldBackgroundColor: Color(0xFF0F1115), // DtColors.dark.bg
+    dialogBackgroundColor: Color(0xFF15181F), // DtColors.dark.surface
     appBarTheme: AppBarTheme(
       shadowColor: Colors.transparent,
     ),
     dialogTheme: DialogTheme(
       elevation: 15,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18.0),
+        borderRadius: BorderRadius.circular(14.0), // DtRadius.xl
         side: BorderSide(
           width: 1,
-          color: Color(0xFF24252B),
+          color: Color(0xFF23262F), // DtColors.dark.border
         ),
       ),
     ),
     scrollbarTheme: scrollbarThemeDark,
     inputDecorationTheme: (isDesktop || isWebDesktop)
         ? InputDecorationTheme(
-            fillColor: Color(0xFF24252B),
+            fillColor: Color(0xFF1A1D25), // DtColors.dark.surface2
             filled: true,
             isDense: true,
             border: OutlineInputBorder(
@@ -511,7 +516,7 @@ class MyTheme {
         color: accent80,
       ),
     ),
-    cardColor: Color(0xFF24252B),
+    cardColor: Color(0xFF15181F), // DtColors.dark.surface
     visualDensity: VisualDensity.adaptivePlatformDensity,
     tabBarTheme: const TabBarTheme(
       labelColor: Colors.white70,
@@ -545,10 +550,13 @@ class MyTheme {
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        backgroundColor: Color(0xFF24252B),
-        side: BorderSide(color: Colors.white12, width: 0.5),
-        disabledForegroundColor: Colors.white70,
-        foregroundColor: Colors.white70,
+        backgroundColor: Colors.transparent, // ghost-style per spec §4.1
+        side: BorderSide(
+          color: Color(0xFF2D3139), // DtColors.dark.borderStrong
+          width: 1,
+        ),
+        disabledForegroundColor: Colors.white38,
+        foregroundColor: Color(0xFFE6E8EE), // DtColors.dark.text
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8.0),
         ),
