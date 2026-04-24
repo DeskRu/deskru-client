@@ -520,6 +520,7 @@ pub static ref T: std::collections::HashMap<&'static str, &'static str> =
         ("Stopped", "Остановлена"),
         ("Your ID", "Ваш ID"),
         ("Copy", "Копировать"),
+        ("New connection", "Новое соединение"),
         ("exceed_max_devices", "Достигнуто максимальное количество управляемых устройств."),
         ("Sync with recent sessions", "Синхронизация последних сеансов"),
         ("Sort tags", "Сортировка меток"),

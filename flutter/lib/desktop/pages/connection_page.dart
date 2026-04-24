@@ -5,8 +5,10 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_hbb/common/widgets/connection_page_title.dart';
+import 'package:flutter_hbb/common/design_tokens.dart';
+import 'package:flutter_hbb/common/widgets/dt/dt_button.dart';
 import 'package:flutter_hbb/consts.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_hbb/desktop/widgets/popup_menu.dart';
 import 'package:flutter_hbb/models/state_model.dart';
 import 'package:get/get.dart';
@@ -407,16 +409,32 @@ class _ConnectionPageState extends State<ConnectionPage>
   /// UI for the remote ID TextField.
   /// Search for a peer.
   Widget _buildRemoteIDTextField(BuildContext context) {
+    final c = context.dtColors;
     var w = Container(
       width: 320 + 20 * 2,
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 22),
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
       decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(Radius.circular(13)),
-          border: Border.all(color: Theme.of(context).colorScheme.background)),
+        color: c.surface,
+        borderRadius: BorderRadius.circular(DtRadius.xl),
+        border: Border.all(color: c.border, width: 1),
+      ),
       child: Ink(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            getConnectionPageTitle(context, false).marginOnly(bottom: 15),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Text(
+                translate('New connection').toUpperCase(),
+                style: TextStyle(
+                  fontFamily: DtFonts.ui,
+                  fontSize: 11,
+                  fontWeight: DtFonts.medium,
+                  color: c.text3,
+                  letterSpacing: 0.66,
+                ),
+              ),
+            ),
             Row(
               children: [
                 Expanded(
@@ -579,24 +597,21 @@ class _ConnectionPageState extends State<ConnectionPage>
               ],
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 13.0),
+              padding: const EdgeInsets.only(top: 14.0),
               child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                SizedBox(
-                  height: 28.0,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      onConnect();
-                    },
-                    child: Text(translate("Connect")),
-                  ),
+                DtButton.primary(
+                  label: translate('Connect'),
+                  icon: PhosphorIcons.arrowRight(),
+                  onPressed: onConnect,
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 6),
                 Container(
-                  height: 28.0,
-                  width: 28.0,
+                  height: 32.0,
+                  width: 32.0,
                   decoration: BoxDecoration(
-                    border: Border.all(color: Theme.of(context).dividerColor),
-                    borderRadius: BorderRadius.circular(8),
+                    color: c.surface2,
+                    border: Border.all(color: c.borderStrong, width: 1),
+                    borderRadius: BorderRadius.circular(DtRadius.sm),
                   ),
                   child: Center(
                     child: StatefulBuilder(
@@ -606,9 +621,11 @@ class _ConnectionPageState extends State<ConnectionPage>
                               child: _menuOpen.value
                                   ? Transform.rotate(
                                       angle: pi,
-                                      child: Icon(IconFont.more, size: 14),
+                                      child: Icon(PhosphorIcons.caretDown(),
+                                          size: 14, color: c.text2),
                                     )
-                                  : Icon(IconFont.more, size: 14),
+                                  : Icon(PhosphorIcons.caretDown(),
+                                      size: 14, color: c.text2),
                               onTapDown: (e) {
                                 offset = e.globalPosition;
                               },
