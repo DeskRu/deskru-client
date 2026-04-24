@@ -516,6 +516,8 @@ pub static ref T: std::collections::HashMap<&'static str, &'static str> =
         ("Service", "Служба"),
         ("Start", "Запустить"),
         ("Stop", "Остановить"),
+        ("Running", "Работает"),
+        ("Stopped", "Остановлена"),
         ("exceed_max_devices", "Достигнуто максимальное количество управляемых устройств."),
         ("Sync with recent sessions", "Синхронизация последних сеансов"),
         ("Sort tags", "Сортировка меток"),

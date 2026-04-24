@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hbb/common.dart';
 import 'package:flutter_hbb/common/widgets/audio_input.dart';
+import 'package:flutter_hbb/common/widgets/dt/dt_button.dart';
+import 'package:flutter_hbb/common/widgets/dt/dt_status_pill.dart';
 import 'package:flutter_hbb/common/widgets/setting_widgets.dart';
 import 'package:flutter_hbb/consts.dart';
 import 'package:flutter_hbb/desktop/pages/desktop_home_page.dart';
@@ -466,17 +468,30 @@ class _GeneralState extends State<_General> {
         return const Offstage();
       }
 
+      final running = !serviceStop.value;
+      final pill = running
+          ? DtStatusPill.success(label: translate('Running'))
+          : DtStatusPill.danger(label: translate('Stopped'));
+
       return _Card(title: 'Service', children: [
-        _Button(serviceStop.value ? 'Start' : 'Stop', () {
-          () async {
-            serviceBtnEnabled.value = false;
-            await start_service(serviceStop.value);
-            // enable the button after 1 second
-            Future.delayed(const Duration(seconds: 1), () {
-              serviceBtnEnabled.value = true;
-            });
-          }();
-        }, enabled: serviceBtnEnabled.value)
+        Row(
+          children: [
+            pill,
+            const Spacer(),
+            DtButton.ghost(
+              label: translate(running ? 'Stop' : 'Start'),
+              onPressed: serviceBtnEnabled.value
+                  ? () async {
+                      serviceBtnEnabled.value = false;
+                      await start_service(serviceStop.value);
+                      Future.delayed(const Duration(seconds: 1), () {
+                        serviceBtnEnabled.value = true;
+                      });
+                    }
+                  : null,
+            ),
+          ],
+        ),
       ]);
     });
   }
