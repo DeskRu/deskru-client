@@ -6,6 +6,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hbb/common.dart';
+import 'package:flutter_hbb/common/design_tokens.dart';
 import 'package:flutter_hbb/common/widgets/audio_input.dart';
 import 'package:flutter_hbb/common/widgets/dt/dt_button.dart';
 import 'package:flutter_hbb/common/widgets/dt/dt_radio.dart';
@@ -186,36 +187,36 @@ class _DesktopSettingPageState extends State<DesktopSettingPage>
     for (final tab in DesktopSettingPage.tabKeys) {
       switch (tab) {
         case SettingsTabKey.general:
-          settingTabs.add(_TabInfo(
-              tab, 'General', Icons.settings_outlined, Icons.settings));
+          settingTabs.add(_TabInfo(tab, 'General', PhosphorIcons.gear(),
+              PhosphorIcons.gear(PhosphorIconsStyle.fill)));
           break;
         case SettingsTabKey.safety:
-          settingTabs.add(_TabInfo(tab, 'Security',
-              Icons.enhanced_encryption_outlined, Icons.enhanced_encryption));
+          settingTabs.add(_TabInfo(tab, 'Security', PhosphorIcons.shield(),
+              PhosphorIcons.shield(PhosphorIconsStyle.fill)));
           break;
         case SettingsTabKey.network:
-          settingTabs
-              .add(_TabInfo(tab, 'Network', Icons.link_outlined, Icons.link));
+          settingTabs.add(_TabInfo(tab, 'Network', PhosphorIcons.globeSimple(),
+              PhosphorIcons.globeSimple(PhosphorIconsStyle.fill)));
           break;
         case SettingsTabKey.display:
-          settingTabs.add(_TabInfo(tab, 'Display',
-              Icons.desktop_windows_outlined, Icons.desktop_windows));
+          settingTabs.add(_TabInfo(tab, 'Display', PhosphorIcons.monitor(),
+              PhosphorIcons.monitor(PhosphorIconsStyle.fill)));
           break;
         case SettingsTabKey.plugin:
-          settingTabs.add(_TabInfo(
-              tab, 'Plugin', Icons.extension_outlined, Icons.extension));
+          settingTabs.add(_TabInfo(tab, 'Plugin', PhosphorIcons.puzzlePiece(),
+              PhosphorIcons.puzzlePiece(PhosphorIconsStyle.fill)));
           break;
         case SettingsTabKey.account:
-          settingTabs.add(
-              _TabInfo(tab, 'Account', Icons.person_outline, Icons.person));
+          settingTabs.add(_TabInfo(tab, 'Account', PhosphorIcons.userCircle(),
+              PhosphorIcons.userCircle(PhosphorIconsStyle.fill)));
           break;
         case SettingsTabKey.printer:
-          settingTabs
-              .add(_TabInfo(tab, 'Printer', Icons.print_outlined, Icons.print));
+          settingTabs.add(_TabInfo(tab, 'Printer', PhosphorIcons.printer(),
+              PhosphorIcons.printer(PhosphorIconsStyle.fill)));
           break;
         case SettingsTabKey.about:
-          settingTabs
-              .add(_TabInfo(tab, 'About', Icons.info_outline, Icons.info));
+          settingTabs.add(_TabInfo(tab, 'About', PhosphorIcons.info(),
+              PhosphorIcons.info(PhosphorIconsStyle.fill)));
           break;
       }
     }
@@ -314,10 +315,12 @@ class _DesktopSettingPageState extends State<DesktopSettingPage>
     final settingsText = Text(
       translate('Settings'),
       textAlign: TextAlign.left,
-      style: const TextStyle(
-        color: _accentColor,
-        fontSize: _kTitleFontSize,
-        fontWeight: FontWeight.w400,
+      style: TextStyle(
+        color: context.dtColors.text,
+        fontFamily: DtFonts.ui,
+        fontSize: 17,
+        fontWeight: DtFonts.bold,
+        letterSpacing: -0.34,
       ),
     );
     return Row(
@@ -359,43 +362,96 @@ class _DesktopSettingPageState extends State<DesktopSettingPage>
 
   Widget _listItem({required _TabInfo tab}) {
     return Obx(() {
-      bool selected = tab.key == selectedTab.value;
-      return SizedBox(
-        width: _kTabWidth,
-        height: _kTabHeight,
-        child: InkWell(
-          onTap: () {
-            if (selectedTab.value != tab.key) {
-              int index = DesktopSettingPage.tabKeys.indexOf(tab.key);
-              if (index == -1) {
-                return;
-              }
-              controller.jumpToPage(index);
-            }
-            selectedTab.value = tab.key;
-          },
-          child: Row(children: [
-            Container(
-              width: 4,
-              height: _kTabHeight * 0.7,
-              color: selected ? _accentColor : null,
-            ),
-            Icon(
-              selected ? tab.selected : tab.unselected,
-              color: selected ? _accentColor : null,
-              size: 20,
-            ).marginOnly(left: 13, right: 10),
-            Text(
-              translate(tab.label),
-              style: TextStyle(
-                  color: selected ? _accentColor : null,
-                  fontWeight: FontWeight.w400,
-                  fontSize: _kContentFontSize),
-            ),
-          ]),
-        ),
+      final selected = tab.key == selectedTab.value;
+      return _SettingsNavItem(
+        tab: tab,
+        selected: selected,
+        onTap: () {
+          if (selectedTab.value != tab.key) {
+            final index = DesktopSettingPage.tabKeys.indexOf(tab.key);
+            if (index == -1) return;
+            controller.jumpToPage(index);
+          }
+          selectedTab.value = tab.key;
+        },
       );
     });
+  }
+}
+
+class _SettingsNavItem extends StatefulWidget {
+  final _TabInfo tab;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _SettingsNavItem({
+    required this.tab,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  State<_SettingsNavItem> createState() => _SettingsNavItemState();
+}
+
+class _SettingsNavItemState extends State<_SettingsNavItem> {
+  bool _hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dtColors;
+    final Color bg;
+    if (widget.selected) {
+      bg = c.accentWeak;
+    } else if (_hover) {
+      bg = c.surface2;
+    } else {
+      bg = Colors.transparent;
+    }
+    final fg = widget.selected ? c.accent : c.text2;
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hover = true),
+      onExit: (_) => setState(() => _hover = false),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 120),
+          width: _kTabWidth,
+          height: _kTabHeight,
+          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(DtRadius.sm),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                widget.selected ? widget.tab.selected : widget.tab.unselected,
+                color: fg,
+                size: 18,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  translate(widget.tab.label),
+                  style: TextStyle(
+                    fontFamily: DtFonts.ui,
+                    fontSize: 13,
+                    fontWeight: DtFonts.medium,
+                    color: fg,
+                    height: 1.2,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
