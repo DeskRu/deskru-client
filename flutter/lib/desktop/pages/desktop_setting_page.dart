@@ -409,24 +409,24 @@ class _SettingsNavItemState extends State<_SettingsNavItem> {
     }
     final fg = widget.selected ? c.accent : c.text2;
 
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hover = true),
-      onExit: (_) => setState(() => _hover = false),
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: widget.onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 120),
-          width: _kTabWidth,
-          height: _kTabHeight,
-          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(DtRadius.sm),
-          ),
-          child: Row(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (_) => setState(() => _hover = true),
+        onExit: (_) => setState(() => _hover = false),
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: widget.onTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 120),
+            height: _kTabHeight,
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: BorderRadius.circular(DtRadius.sm),
+            ),
+            child: Row(
             children: [
               Icon(
                 widget.selected ? widget.tab.selected : widget.tab.unselected,
@@ -449,6 +449,7 @@ class _SettingsNavItemState extends State<_SettingsNavItem> {
             ],
           ),
         ),
+      ),
       ),
     );
   }

@@ -2,13 +2,14 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
 
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hbb/common.dart';
-import 'package:flutter_hbb/common/widgets/animated_rotation_widget.dart';
+import 'package:flutter_hbb/common/design_tokens.dart';
 import 'package:flutter_hbb/common/widgets/custom_password.dart';
+import 'package:flutter_hbb/common/widgets/dt/dt_button.dart';
 import 'package:flutter_hbb/common/widgets/login.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_hbb/consts.dart';
 import 'package:flutter_hbb/desktop/pages/connection_page.dart';
 import 'package:flutter_hbb/desktop/pages/desktop_setting_page.dart';
@@ -184,58 +185,44 @@ class _DesktopHomePageState extends State<DesktopHomePage>
 
   buildIDBoard(BuildContext context) {
     final model = gFFI.serverModel;
-    return Container(
-      margin: const EdgeInsets.only(left: 20, right: 11),
-      height: 57,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.baseline,
-        textBaseline: TextBaseline.alphabetic,
+    final c = context.dtColors;
+    return Padding(
+      padding: const EdgeInsets.only(left: 20, right: 16, top: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 2,
-            decoration: const BoxDecoration(color: MyTheme.accent),
-          ).marginOnly(top: 5),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(left: 7),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    height: 25,
-                    child: Text(
-                      translate("ID"),
-                      style: TextStyle(
-                          fontSize: 14,
-                          color: Theme.of(context)
-                              .textTheme
-                              .titleLarge
-                              ?.color
-                              ?.withOpacity(0.5)),
-                    ).marginOnly(top: 5),
+          Text(
+            translate('Your ID').toUpperCase(),
+            style: TextStyle(
+              fontFamily: DtFonts.ui,
+              fontSize: 11,
+              fontWeight: DtFonts.medium,
+              color: c.text3,
+              letterSpacing: 0.66,
+            ),
+          ),
+          const SizedBox(height: 4),
+          GestureDetector(
+            onDoubleTap: () {
+              Clipboard.setData(ClipboardData(text: model.serverId.text));
+              showToast(translate("Copied"));
+            },
+            child: ValueListenableBuilder<TextEditingValue>(
+              valueListenable: model.serverId,
+              builder: (_, value, __) {
+                final text = value.text;
+                return Text(
+                  text.isEmpty ? '-' : text,
+                  style: TextStyle(
+                    fontFamily: DtFonts.mono,
+                    fontSize: 18,
+                    fontWeight: DtFonts.semiBold,
+                    color: c.text,
+                    letterSpacing: 0.36,
+                    height: 1.2,
                   ),
-                  Flexible(
-                    child: GestureDetector(
-                      onDoubleTap: () {
-                        Clipboard.setData(
-                            ClipboardData(text: model.serverId.text));
-                        showToast(translate("Copied"));
-                      },
-                      child: TextFormField(
-                        controller: model.serverId,
-                        readOnly: true,
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.only(top: 10, bottom: 10),
-                        ),
-                        style: TextStyle(
-                          fontSize: 22,
-                        ),
-                      ).workaroundFreezeLinuxMint(),
-                    ),
-                  )
-                ],
-              ),
+                );
+              },
             ),
           ),
         ],
@@ -254,97 +241,80 @@ class _DesktopHomePageState extends State<DesktopHomePage>
   }
 
   buildPasswordBoard2(BuildContext context, ServerModel model) {
-    RxBool refreshHover = false.obs;
-    RxBool editHover = false.obs;
-    final textColor = Theme.of(context).textTheme.titleLarge?.color;
+    final c = context.dtColors;
     final showOneTime = model.approveMode != 'click' &&
         model.verificationMethod != kUsePermanentPassword;
-    return Container(
-      margin: EdgeInsets.only(left: 20.0, right: 16, top: 13, bottom: 13),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.baseline,
-        textBaseline: TextBaseline.alphabetic,
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 20, right: 16, top: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 2,
-            height: 52,
-            decoration: BoxDecoration(color: MyTheme.accent),
+          Text(
+            translate('One-time Password').toUpperCase(),
+            style: TextStyle(
+              fontFamily: DtFonts.ui,
+              fontSize: 11,
+              fontWeight: DtFonts.medium,
+              color: c.text3,
+              letterSpacing: 0.66,
+            ),
           ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(left: 7),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AutoSizeText(
-                    translate("One-time Password"),
-                    style: TextStyle(
-                        fontSize: 14, color: textColor?.withOpacity(0.5)),
-                    maxLines: 1,
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onDoubleTap: () {
-                            if (showOneTime) {
-                              Clipboard.setData(
-                                  ClipboardData(text: model.serverPasswd.text));
-                              showToast(translate("Copied"));
-                            }
-                          },
-                          child: TextFormField(
-                            controller: model.serverPasswd,
-                            readOnly: true,
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              contentPadding:
-                                  EdgeInsets.only(top: 14, bottom: 10),
-                            ),
-                            style: TextStyle(fontSize: 15),
-                          ).workaroundFreezeLinuxMint(),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              Flexible(
+                child: ValueListenableBuilder<TextEditingValue>(
+                  valueListenable: model.serverPasswd,
+                  builder: (_, value, __) {
+                    final text = value.text;
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: c.surface2,
+                        borderRadius: BorderRadius.circular(DtRadius.xs),
+                      ),
+                      child: Text(
+                        text.isEmpty ? '-' : text,
+                        style: TextStyle(
+                          fontFamily: DtFonts.mono,
+                          fontSize: 12,
+                          fontWeight: DtFonts.medium,
+                          color: c.text,
+                          letterSpacing: 0.24,
+                          height: 1.2,
                         ),
                       ),
-                      if (showOneTime)
-                        AnimatedRotationWidget(
-                          onPressed: () => bind.mainUpdateTemporaryPassword(),
-                          child: Tooltip(
-                            message: translate('Refresh Password'),
-                            child: Obx(() => RotatedBox(
-                                quarterTurns: 2,
-                                child: Icon(
-                                  Icons.refresh,
-                                  color: refreshHover.value
-                                      ? textColor
-                                      : Color(0xFFDDDDDD),
-                                  size: 22,
-                                ))),
-                          ),
-                          onHover: (value) => refreshHover.value = value,
-                        ).marginOnly(right: 8, top: 4),
-                      if (!bind.isDisableSettings())
-                        InkWell(
-                          child: Tooltip(
-                            message: translate('Change Password'),
-                            child: Obx(
-                              () => Icon(
-                                Icons.edit,
-                                color: editHover.value
-                                    ? textColor
-                                    : Color(0xFFDDDDDD),
-                                size: 22,
-                              ).marginOnly(right: 8, top: 4),
-                            ),
-                          ),
-                          onTap: () => DesktopSettingPage.switch2page(
-                              SettingsTabKey.safety),
-                          onHover: (value) => editHover.value = value,
-                        ),
-                    ],
-                  ),
-                ],
+                    );
+                  },
+                ),
               ),
-            ),
+              if (showOneTime) ...[
+                const SizedBox(width: 4),
+                _LeftPaneIconButton(
+                  tooltip: translate('Copy'),
+                  icon: PhosphorIcons.copy(),
+                  onTap: () {
+                    Clipboard.setData(
+                        ClipboardData(text: model.serverPasswd.text));
+                    showToast(translate('Copied'));
+                  },
+                ),
+                _LeftPaneIconButton(
+                  tooltip: translate('Refresh Password'),
+                  icon: PhosphorIcons.arrowsClockwise(),
+                  onTap: () => bind.mainUpdateTemporaryPassword(),
+                ),
+              ],
+              if (!bind.isDisableSettings())
+                _LeftPaneIconButton(
+                  tooltip: translate('Change Password'),
+                  icon: PhosphorIcons.pencilSimple(),
+                  onTap: () => DesktopSettingPage.switch2page(
+                      SettingsTabKey.safety),
+                ),
+            ],
           ),
         ],
       ),
@@ -354,50 +324,36 @@ class _DesktopHomePageState extends State<DesktopHomePage>
   Widget buildAccountButton(BuildContext context) {
     return Obx(() {
       final isLoggedIn = gFFI.userModel.userName.value.isNotEmpty;
-      return Container(
-        margin: const EdgeInsets.only(left: 20, right: 16, top: 13),
-        width: double.infinity,
-        height: 28,
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: isLoggedIn ? Colors.red.shade600 : MyTheme.accent,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          onPressed: () {
-            isLoggedIn ? logOutConfirmDialog() : loginDialog();
-          },
-          child: Text(
-            isLoggedIn
-                ? '${translate("Logout")} (${gFFI.userModel.userName.value})'
-                : translate("Login"),
-            style: TextStyle(color: Colors.white, fontSize: 12),
-            overflow: TextOverflow.ellipsis,
-          ),
+      return Padding(
+        padding: const EdgeInsets.only(left: 20, right: 16, top: 16),
+        child: SizedBox(
+          width: double.infinity,
+          child: isLoggedIn
+              ? DtButton.dangerGhost(
+                  label:
+                      '${translate("Logout")} (${gFFI.userModel.userName.value})',
+                  icon: PhosphorIcons.signOut(),
+                  onPressed: logOutConfirmDialog,
+                )
+              : DtButton.primary(
+                  label: translate('Login'),
+                  icon: PhosphorIcons.userCircle(),
+                  onPressed: loginDialog,
+                ),
         ),
       );
     });
   }
 
   Widget buildSettingsButton(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(left: 20, right: 16, top: 8),
-      width: double.infinity,
-      height: 28,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: MyTheme.accent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-        onPressed: () {
-          DesktopTabPage.onAddSetting();
-        },
-        child: Text(
-          translate("Settings"),
-          style: TextStyle(color: Colors.white, fontSize: 12),
+    return Padding(
+      padding: const EdgeInsets.only(left: 20, right: 16, top: 8),
+      child: SizedBox(
+        width: double.infinity,
+        child: DtButton.ghost(
+          label: translate('Settings'),
+          icon: PhosphorIcons.gear(),
+          onPressed: DesktopTabPage.onAddSetting,
         ),
       ),
     );
@@ -408,43 +364,57 @@ class _DesktopHomePageState extends State<DesktopHomePage>
 
   buildTip(BuildContext context) {
     final isOutgoingOnly = bind.isOutgoingOnly();
+    final c = context.dtColors;
     return Padding(
       padding:
-          const EdgeInsets.only(left: 20.0, right: 16, top: 16.0, bottom: 5),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
+          const EdgeInsets.only(left: 20.0, right: 16, top: 16.0, bottom: 10),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          if (!isOutgoingOnly)
-            Align(
-              alignment: Alignment.centerLeft,
+          Container(
+            width: 22,
+            height: 22,
+            decoration: BoxDecoration(
+              color: c.accent,
+              borderRadius: BorderRadius.circular(DtRadius.xs),
+            ),
+            alignment: Alignment.center,
+            child: const Text(
+              'D',
+              style: TextStyle(
+                fontFamily: DtFonts.ui,
+                fontSize: 13,
+                fontWeight: DtFonts.bold,
+                color: Colors.white,
+                height: 1.0,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            'DeskRu',
+            style: TextStyle(
+              fontFamily: DtFonts.ui,
+              fontSize: 13,
+              fontWeight: DtFonts.bold,
+              color: c.text,
+              letterSpacing: -0.13,
+            ),
+          ),
+          if (isOutgoingOnly) ...[
+            const SizedBox(width: 10),
+            Flexible(
               child: Text(
-                'DeskRu',
+                translate("outgoing_only_desk_tip"),
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.5,
-                  color: Theme.of(context).brightness == Brightness.dark
-                      ? Colors.white
-                      : const Color(0xFF1A2332),
+                  fontFamily: DtFonts.ui,
+                  fontSize: 11,
+                  color: c.text2,
                 ),
               ),
             ),
-          SizedBox(
-            height: 10.0,
-          ),
-          if (!isOutgoingOnly)
-            Text(
-              translate("desk_tip"),
-              overflow: TextOverflow.clip,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          if (isOutgoingOnly)
-            Text(
-              translate("outgoing_only_desk_tip"),
-              overflow: TextOverflow.clip,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
+          ],
         ],
       ),
     );
@@ -1167,4 +1137,33 @@ void setPasswordDialog({VoidCallback? notEmptyCallback}) async {
       onCancel: close,
     );
   });
+}
+
+class _LeftPaneIconButton extends StatelessWidget {
+  final String tooltip;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _LeftPaneIconButton({
+    required this.tooltip,
+    required this.icon,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dtColors;
+    return Tooltip(
+      message: tooltip,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(DtRadius.xs),
+        hoverColor: c.surface2,
+        child: Padding(
+          padding: const EdgeInsets.all(5),
+          child: Icon(icon, size: 14, color: c.text2),
+        ),
+      ),
+    );
+  }
 }
