@@ -781,6 +781,46 @@ class _GeneralState extends State<_General> {
       String root_dir = map['root_dir']!;
       bool root_dir_exists = map['root_dir_exists']!;
       bool user_dir_exists = map['user_dir_exists']!;
+      final c = context.dtColors;
+
+      Widget pathBox(String path, bool exists) {
+        return GestureDetector(
+          onTap: exists ? () => launchUrl(Uri.file(path)) : null,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+            decoration: BoxDecoration(
+              color: c.surface2,
+              borderRadius: BorderRadius.circular(DtRadius.sm),
+              border: Border.all(color: c.border, width: 1),
+            ),
+            child: Text(
+              path,
+              softWrap: true,
+              style: TextStyle(
+                fontFamily: DtFonts.mono,
+                fontSize: 12,
+                fontWeight: DtFonts.medium,
+                color: c.text,
+                letterSpacing: 0.24,
+                decoration:
+                    exists ? TextDecoration.underline : TextDecoration.none,
+                decorationColor: c.text3,
+              ),
+            ),
+          ),
+        );
+      }
+
+      Widget labelText(String key) => Text(
+            '${translate(key)}:',
+            style: TextStyle(
+              fontFamily: DtFonts.ui,
+              fontSize: 13,
+              fontWeight: DtFonts.medium,
+              color: c.text2,
+            ),
+          );
+
       return _Card(title: 'Recording', children: [
         if (!bind.isOutgoingOnly())
           _OptionCheckBox(context, 'Automatically record incoming sessions',
@@ -792,67 +832,43 @@ class _GeneralState extends State<_General> {
         if (showRootDir && !bind.isOutgoingOnly())
           Row(
             children: [
-              Text(
-                  '${translate(bind.isIncomingOnly() ? "Directory" : "Incoming")}:'),
-              Expanded(
-                child: GestureDetector(
-                    onTap: root_dir_exists
-                        ? () => launchUrl(Uri.file(root_dir))
-                        : null,
-                    child: Text(
-                      root_dir,
-                      softWrap: true,
-                      style: root_dir_exists
-                          ? const TextStyle(
-                              decoration: TextDecoration.underline)
-                          : null,
-                    )).marginOnly(left: 10),
-              ),
+              labelText(bind.isIncomingOnly() ? 'Directory' : 'Incoming'),
+              const SizedBox(width: 10),
+              Expanded(child: pathBox(root_dir, root_dir_exists)),
             ],
-          ).marginOnly(left: _kContentHMargin),
+          ).marginOnly(left: _kContentHMargin, top: 6),
         if (!(showRootDir && bind.isIncomingOnly()))
           Row(
             children: [
-              Text(
-                  '${translate((showRootDir && !bind.isOutgoingOnly()) ? "Outgoing" : "Directory")}:'),
-              Expanded(
-                child: GestureDetector(
-                    onTap: user_dir_exists
-                        ? () => launchUrl(Uri.file(user_dir))
-                        : null,
-                    child: Text(
-                      user_dir,
-                      softWrap: true,
-                      style: user_dir_exists
-                          ? const TextStyle(
-                              decoration: TextDecoration.underline)
-                          : null,
-                    )).marginOnly(left: 10),
+              labelText((showRootDir && !bind.isOutgoingOnly())
+                  ? 'Outgoing'
+                  : 'Directory'),
+              const SizedBox(width: 10),
+              Expanded(child: pathBox(user_dir, user_dir_exists)),
+              const SizedBox(width: 8),
+              DtButton.ghost(
+                label: translate('Change'),
+                onPressed: isOptionFixed(kOptionVideoSaveDirectory)
+                    ? null
+                    : () async {
+                        String? initialDirectory;
+                        if (await Directory.fromUri(Uri.directory(user_dir))
+                            .exists()) {
+                          initialDirectory = user_dir;
+                        }
+                        String? selectedDirectory = await FilePicker.platform
+                            .getDirectoryPath(
+                                initialDirectory: initialDirectory);
+                        if (selectedDirectory != null) {
+                          await bind.mainSetLocalOption(
+                              key: kOptionVideoSaveDirectory,
+                              value: selectedDirectory);
+                          setState(() {});
+                        }
+                      },
               ),
-              ElevatedButton(
-                      onPressed: isOptionFixed(kOptionVideoSaveDirectory)
-                          ? null
-                          : () async {
-                              String? initialDirectory;
-                              if (await Directory.fromUri(
-                                      Uri.directory(user_dir))
-                                  .exists()) {
-                                initialDirectory = user_dir;
-                              }
-                              String? selectedDirectory =
-                                  await FilePicker.platform.getDirectoryPath(
-                                      initialDirectory: initialDirectory);
-                              if (selectedDirectory != null) {
-                                await bind.mainSetLocalOption(
-                                    key: kOptionVideoSaveDirectory,
-                                    value: selectedDirectory);
-                                setState(() {});
-                              }
-                            },
-                      child: Text(translate('Change')))
-                  .marginOnly(left: 5),
             ],
-          ).marginOnly(left: _kContentHMargin),
+          ).marginOnly(left: _kContentHMargin, top: 6),
       ]);
     });
   }
