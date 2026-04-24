@@ -2604,6 +2604,7 @@ Widget _OptionCheckBox(
   }
 
   return GestureDetector(
+    behavior: HitTestBehavior.opaque,
     child: Obx(
       () => Row(
         children: [
@@ -2623,7 +2624,7 @@ Widget _OptionCheckBox(
           ),
         ],
       ),
-    ).marginOnly(left: _kCheckBoxLeftMargin),
+    ).marginOnly(left: _kCheckBoxLeftMargin, top: 5, bottom: 5),
     onTap: enabled && !isOptFixed
         ? () {
             onChanged(!ref.value);
