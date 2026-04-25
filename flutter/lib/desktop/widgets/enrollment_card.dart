@@ -17,8 +17,18 @@ const _kOrgIdKey = 'deskru-enrollment-org-id';
 const _kOrgNameKey = 'deskru-enrollment-org-name';
 const _kFallbackLabel = 'Корпоративное устройство';
 
+enum EnrollmentCardVariant {
+  pill,         // Compact 200px widget for LeftPane / connection page
+  settingsCard, // Full-width section for Settings → Account
+}
+
 class EnrollmentCard extends StatefulWidget {
-  const EnrollmentCard({Key? key}) : super(key: key);
+  const EnrollmentCard({
+    Key? key,
+    this.variant = EnrollmentCardVariant.pill,
+  }) : super(key: key);
+
+  final EnrollmentCardVariant variant;
 
   @override
   State<EnrollmentCard> createState() => _EnrollmentCardState();
@@ -188,14 +198,117 @@ class _EnrollmentCardState extends State<EnrollmentCard> {
   Widget build(BuildContext context) {
     final orgName = bind.mainGetEnrollmentOrgName();
     final isEnrolled = orgName.isNotEmpty;
+    final label = orgName.isEmpty ? _kFallbackLabel : orgName;
+
+    if (widget.variant == EnrollmentCardVariant.settingsCard) {
+      return _SettingsCardLayout(
+        isEnrolled: isEnrolled,
+        label: label,
+        onTapConnect: _showDialog,
+        onClear: _clearLocal,
+      );
+    }
 
     if (isEnrolled) {
       return _BoundPill(
-        label: orgName.isEmpty ? _kFallbackLabel : orgName,
+        label: label,
         onClear: _clearLocal,
       );
     }
     return _ConnectButton(onTap: _showDialog);
+  }
+}
+
+// Full-width Settings layout: description text + outlined button with proper
+// padding when not enrolled; bound pill + Disconnect ghost-button when enrolled.
+class _SettingsCardLayout extends StatelessWidget {
+  const _SettingsCardLayout({
+    required this.isEnrolled,
+    required this.label,
+    required this.onTapConnect,
+    required this.onClear,
+  });
+
+  final bool isEnrolled;
+  final String label;
+  final VoidCallback onTapConnect;
+  final VoidCallback onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    if (isEnrolled) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1F4D2A),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: const Color(0xFF41CE5C), width: 1),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.shield_rounded,
+                      size: 16, color: Color(0xFF7FE08F)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      label,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+            TextButton.icon(
+              onPressed: onClear,
+              icon: const Icon(Icons.link_off, size: 16),
+              label: Text(translate('Disconnect from organization')),
+              style: TextButton.styleFrom(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final descColor = Theme.of(context).textTheme.bodySmall?.color;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            translate('corporate_enrollment_description'),
+            style: TextStyle(fontSize: 13, color: descColor, height: 1.4),
+          ),
+          const SizedBox(height: 12),
+          OutlinedButton.icon(
+            onPressed: onTapConnect,
+            icon: const Icon(Icons.shield_outlined, size: 16),
+            label: Text(translate('Enter invitation code')),
+            style: OutlinedButton.styleFrom(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

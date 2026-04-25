@@ -21,7 +21,6 @@ import '../../common/widgets/autocomplete.dart';
 import '../../common/widgets/login.dart';
 import '../../models/platform_model.dart';
 import '../../desktop/widgets/material_mod_popup_menu.dart' as mod_menu;
-import '../../desktop/widgets/enrollment_card.dart';
 
 class OnlineStatusWidget extends StatefulWidget {
   const OnlineStatusWidget({Key? key, this.onSvcStatusChanged})
@@ -315,11 +314,6 @@ class _ConnectionPageState extends State<ConnectionPage>
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Flexible(child: _buildRemoteIDTextField(context)),
-                if (!isOutgoingOnly) ...[
-                  const SizedBox(width: 16),
-                  const EnrollmentCard(),
-                  const SizedBox(width: 12),
-                ],
               ],
             ).marginOnly(top: 22),
             SizedBox(height: 12),
