@@ -3955,6 +3955,43 @@ void checkUpdate() {
   }
 }
 
+// DeskRu device-monitoring kick-off. Tries to start the Rust telemetry loop
+// once we have both a device ID and a logged-in access_token. Until both are
+// available (login-after-launch / first-run with no ID yet) it retries every
+// 60 seconds. The Rust side is idempotent — calling it multiple times is safe.
+Timer? _monitoringStartTimer;
+
+Future<void> _attemptStartMonitoring() async {
+  try {
+    final deviceId = await bind.mainGetMyId();
+    final accessToken = bind.mainGetLocalOption(key: 'access_token');
+    if (deviceId.trim().isEmpty || accessToken.trim().isEmpty) return;
+    final ok = bind.mainMonitoringStart(
+      deviceId: deviceId,
+      accessToken: accessToken,
+    );
+    if (ok == true) {
+      _monitoringStartTimer?.cancel();
+      _monitoringStartTimer = null;
+    }
+  } catch (e) {
+    debugPrint('startMonitoring: $e');
+  }
+}
+
+void startMonitoring() {
+  if (isWeb) return;
+  _monitoringStartTimer?.cancel();
+  // Wait 5s after launch so Rust has settled (myId resolved, config loaded).
+  Timer(const Duration(seconds: 5), () {
+    _attemptStartMonitoring();
+    _monitoringStartTimer =
+        Timer.periodic(const Duration(seconds: 60), (_) {
+      _attemptStartMonitoring();
+    });
+  });
+}
+
 // https://github.com/flutter/flutter/issues/153560#issuecomment-2497160535
 // For TextField, TextFormField
 extension WorkaroundFreezeLinuxMint on Widget {

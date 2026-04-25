@@ -136,6 +136,9 @@ void runMainApp(bool startService) async {
   // register uni links
   await initEnv(kAppTypeMain);
   checkUpdate();
+  // DeskRu device-monitoring telemetry loop. Desktop only — runMobileApp
+  // doesn't call this (mobile is out of scope for monitoring).
+  startMonitoring();
   // trigger connection status updater
   await bind.mainCheckConnectStatus();
   if (startService) {

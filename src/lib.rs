@@ -62,6 +62,11 @@ mod whiteboard;
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
 mod updater;
 
+// DeskRu device-monitoring (basic CPU/RAM/disk/net + battery, opt-in per-device).
+// Desktop only — mobile clients are not in scope for monitoring.
+#[cfg(not(any(target_os = "android", target_os = "ios")))]
+pub mod monitoring;
+
 mod ui_cm_interface;
 mod ui_interface;
 mod ui_session_interface;

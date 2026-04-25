@@ -1418,6 +1418,26 @@ pub fn main_clear_enrollment() -> SyncReturn<()> {
     SyncReturn(())
 }
 
+// DeskRu device-monitoring (v2.0.7). Spawns the telemetry loop on the first
+// call. Idempotent — re-calling after re-login is safe.
+//
+// Returns true if the loop was started (or was already running). False when
+// device_id or access_token is empty (user not logged in / no ID yet).
+#[cfg(not(any(target_os = "android", target_os = "ios")))]
+pub fn main_monitoring_start(device_id: String, access_token: String) -> SyncReturn<bool> {
+    if device_id.trim().is_empty() || access_token.trim().is_empty() {
+        return SyncReturn(false);
+    }
+    crate::monitoring::start_telemetry_loop(device_id, access_token);
+    SyncReturn(true)
+}
+
+#[cfg(any(target_os = "android", target_os = "ios"))]
+pub fn main_monitoring_start(_device_id: String, _access_token: String) -> SyncReturn<bool> {
+    // Mobile is not in scope for v2.0.7 device-monitoring.
+    SyncReturn(false)
+}
+
 // DeskRu: poll the server whether this device is still enrolled. Called from the
 // Flutter side every 30s while the "bound" plate is shown. On enrolled=false we
 // clear LocalConfig so the plate disappears.

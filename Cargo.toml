@@ -104,6 +104,10 @@ portable-pty = { git = "https://github.com/rustdesk-org/wezterm", branch = "rust
 system_shutdown = "4.0"
 qrcode-generator = "4.1"
 
+# DeskRu device-monitoring (basic CPU/RAM/disk/net + battery, opt-in per-device)
+sysinfo = "0.31"
+starship-battery = "0.10"
+
 [target.'cfg(target_os = "windows")'.dependencies]
 winapi = { version = "0.3", features = [
     "winuser",
