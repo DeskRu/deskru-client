@@ -14,6 +14,7 @@ import 'package:flutter_hbb/consts.dart';
 import 'package:flutter_hbb/desktop/pages/connection_page.dart';
 import 'package:flutter_hbb/desktop/pages/desktop_setting_page.dart';
 import 'package:flutter_hbb/desktop/pages/desktop_tab_page.dart';
+import 'package:flutter_hbb/desktop/widgets/enrollment_card.dart';
 import 'package:flutter_hbb/desktop/widgets/update_progress.dart';
 import 'package:flutter_hbb/models/platform_model.dart';
 import 'package:flutter_hbb/models/server_model.dart';
@@ -89,6 +90,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
       if (!isOutgoingOnly) buildPasswordBoard(context),
       if (!isOutgoingOnly) buildAccountButton(context),
       if (!isOutgoingOnly) buildSettingsButton(context),
+      if (!isOutgoingOnly) buildEnrollmentEntry(context),
       FutureBuilder<Widget>(
         future: Future.value(
             Obx(() => buildHelpCards(stateGlobal.updateUrl.value))),
@@ -359,8 +361,18 @@ class _DesktopHomePageState extends State<DesktopHomePage>
     );
   }
 
-  // DeskRu enrollment UI moved to connection_page.dart (EnrollmentCard widget)
-  // in v2.0.7 — it now lives next to the Remote ID input on the right pane.
+  // DeskRu enrollment entry — Ghost button "Подключить к организации" or
+  // bound-pill with org name. Sits in LeftPane below Settings (per §5.1
+  // visual refresh spec).
+  Widget buildEnrollmentEntry(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 20, right: 16, top: 8),
+      child: SizedBox(
+        width: double.infinity,
+        child: const EnrollmentCard(),
+      ),
+    );
+  }
 
   buildTip(BuildContext context) {
     final isOutgoingOnly = bind.isOutgoingOnly();

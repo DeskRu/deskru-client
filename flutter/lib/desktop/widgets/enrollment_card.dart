@@ -1,20 +1,21 @@
 // DeskRu enrollment card — shows the "bound to organization" pill or a
-// CTA button to connect this device to an organization. Polls the server
-// every 30s; if the admin revoked the token / deleted the device, the
-// plate clears itself. On network errors the plate stays — we never
+// Ghost CTA button to connect this device to an organization. Polls the
+// server every 30s; if the admin revoked the token / deleted the device,
+// the plate clears itself. On network errors the plate stays — we never
 // clear state on transient failures.
 
 import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../common.dart';
+import '../../common/design_tokens.dart';
+import '../../common/widgets/dt/dt_button.dart';
 import '../../models/platform_model.dart';
 
 const _kPollInterval = Duration(seconds: 30);
-const _kOrgIdKey = 'deskru-enrollment-org-id';
-const _kOrgNameKey = 'deskru-enrollment-org-name';
 const _kFallbackLabel = 'Корпоративное устройство';
 
 class EnrollmentCard extends StatefulWidget {
@@ -44,10 +45,7 @@ class _EnrollmentCardState extends State<EnrollmentCard> {
   void _poll() {
     if (!mounted) return;
     final current = bind.mainGetEnrollmentOrgName();
-    if (current.isEmpty) {
-      // Nothing to check against — we're not enrolled locally.
-      return;
-    }
+    if (current.isEmpty) return;
     final raw = bind.mainCheckEnrollmentStatus();
     try {
       final parsed = jsonDecode(raw) as Map<String, dynamic>;
@@ -79,6 +77,7 @@ class _EnrollmentCardState extends State<EnrollmentCard> {
 
         return StatefulBuilder(
           builder: (ctx, setDialogState) {
+            final c = ctx.dtColors;
             Future<void> submit() async {
               final token = controller.text.trim();
               if (token.isEmpty) {
@@ -108,7 +107,8 @@ class _EnrollmentCardState extends State<EnrollmentCard> {
                   }
                 } else {
                   setDialogState(() {
-                    error = (parsed['error'] ?? translate('Unknown error')).toString();
+                    error =
+                        (parsed['error'] ?? translate('Unknown error')).toString();
                     submitting = false;
                   });
                 }
@@ -132,8 +132,9 @@ class _EnrollmentCardState extends State<EnrollmentCard> {
                       translate(
                           'Paste the invitation code your administrator sent you. The device will be added to the organization automatically.'),
                       style: TextStyle(
+                        fontFamily: DtFonts.ui,
                         fontSize: 12,
-                        color: Theme.of(ctx).textTheme.bodySmall?.color,
+                        color: c.text2,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -141,40 +142,64 @@ class _EnrollmentCardState extends State<EnrollmentCard> {
                       controller: controller,
                       autofocus: true,
                       enabled: !submitting,
+                      style: TextStyle(
+                          fontFamily: DtFonts.mono, fontSize: 13, color: c.text),
                       decoration: InputDecoration(
                         hintText: translate('Invitation code'),
-                        border: const OutlineInputBorder(),
-                        contentPadding:
-                            const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                        hintStyle: TextStyle(
+                            fontFamily: DtFonts.ui, color: c.text3),
+                        filled: true,
+                        fillColor: c.surface2,
+                        border: OutlineInputBorder(
+                          borderRadius:
+                              BorderRadius.circular(DtRadius.sm),
+                          borderSide: BorderSide(color: c.border),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius:
+                              BorderRadius.circular(DtRadius.sm),
+                          borderSide: BorderSide(color: c.border),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius:
+                              BorderRadius.circular(DtRadius.sm),
+                          borderSide: BorderSide(color: c.accent, width: 1.5),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 10),
                       ),
                       onSubmitted: (_) => submit(),
                     ),
                     if (error != null) ...[
                       const SizedBox(height: 10),
                       Text(error!,
-                          style:
-                              const TextStyle(color: Color(0xFFE57373), fontSize: 12)),
+                          style: TextStyle(
+                              color: c.danger,
+                              fontFamily: DtFonts.ui,
+                              fontSize: 12)),
                     ],
                     if (success != null) ...[
                       const SizedBox(height: 10),
                       Text(success!,
-                          style:
-                              const TextStyle(color: Color(0xFF7FE08F), fontSize: 12)),
+                          style: TextStyle(
+                              color: c.success,
+                              fontFamily: DtFonts.ui,
+                              fontSize: 12)),
                     ],
                   ],
                 ),
               ),
               actions: [
-                TextButton(
+                DtButton.ghost(
+                  label: translate('Cancel'),
                   onPressed:
                       submitting ? null : () => Navigator.of(dialogCtx).pop(),
-                  child: Text(translate('Cancel')),
                 ),
-                ElevatedButton(
-                  onPressed: submitting ? null : submit,
-                  child: Text(submitting
+                DtButton.primary(
+                  label: submitting
                       ? translate('Connecting...')
-                      : translate('Connect')),
+                      : translate('Connect'),
+                  onPressed: submitting ? null : submit,
                 ),
               ],
             );
@@ -195,11 +220,17 @@ class _EnrollmentCardState extends State<EnrollmentCard> {
         onClear: _clearLocal,
       );
     }
-    return _ConnectButton(onTap: _showDialog);
+    return DtButton.ghost(
+      label: translate('Connect to organization'),
+      icon: PhosphorIcons.shieldCheck(),
+      onPressed: _showDialog,
+    );
   }
 }
 
-// Green pill shown when device is bound to an org.
+// Pill shown when device is bound to an org. Uses accentWeak bg + accent
+// border + filled shield-check icon for a calm "everything is in order"
+// signal that fits the §5 visual language (vs the v2.0.6 green block).
 class _BoundPill extends StatelessWidget {
   const _BoundPill({required this.label, required this.onClear});
   final String label;
@@ -207,98 +238,45 @@ class _BoundPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.dtColors;
     return Container(
-      width: 200,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      width: double.infinity,
+      padding:
+          const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
       decoration: BoxDecoration(
-        color: const Color(0xFF1F4D2A),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFF41CE5C), width: 1),
+        color: c.accentWeak,
+        borderRadius: BorderRadius.circular(DtRadius.sm),
+        border: Border.all(color: c.accent.withOpacity(0.45), width: 1),
       ),
       child: Row(
         children: [
-          const Icon(Icons.shield_rounded, size: 16, color: Color(0xFF7FE08F)),
+          Icon(PhosphorIconsFill.shieldCheck, size: 14, color: c.accent),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                fontFamily: DtFonts.ui,
                 fontSize: 12,
-                fontWeight: FontWeight.w500,
+                fontWeight: DtFonts.medium,
+                color: c.text,
               ),
               overflow: TextOverflow.ellipsis,
             ),
           ),
+          const SizedBox(width: 6),
           InkWell(
             onTap: onClear,
-            child: const Padding(
-              padding: EdgeInsets.all(2.0),
-              child: Icon(Icons.close_rounded, size: 14, color: Color(0xFF7FE08F)),
+            borderRadius: BorderRadius.circular(4),
+            child: Tooltip(
+              message: translate('Disconnect from organization'),
+              child: Padding(
+                padding: const EdgeInsets.all(2),
+                child: Icon(PhosphorIcons.x(), size: 12, color: c.text2),
+              ),
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-// "Connect to organization" CTA with shield icon + hover.
-class _ConnectButton extends StatefulWidget {
-  const _ConnectButton({required this.onTap});
-  final VoidCallback onTap;
-
-  @override
-  State<_ConnectButton> createState() => _ConnectButtonState();
-}
-
-class _ConnectButtonState extends State<_ConnectButton> {
-  bool _hover = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final textColor =
-        Theme.of(context).textTheme.titleLarge?.color ?? Colors.white;
-    final borderColor = _hover
-        ? textColor.withOpacity(0.35)
-        : Theme.of(context).colorScheme.background;
-    final bg = _hover ? Colors.white.withOpacity(0.04) : Colors.transparent;
-
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hover = true),
-      onExit: (_) => setState(() => _hover = false),
-      child: GestureDetector(
-        onTap: widget.onTap,
-        behavior: HitTestBehavior.opaque,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 120),
-          width: 200,
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: borderColor, width: 1),
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.shield_outlined,
-                  size: 16, color: textColor.withOpacity(0.75)),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  translate('Connect to organization'),
-                  style: TextStyle(
-                    color: textColor.withOpacity(0.85),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
