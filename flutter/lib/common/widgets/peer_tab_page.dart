@@ -42,6 +42,12 @@ EdgeInsets? _menuPadding() {
   return (isDesktop || isWebDesktop) ? kDesktopMenuPadding : null;
 }
 
+// Shared between PeerTabPage and PeerSearchBar: when the search bar is
+// expanded we hide the tab row so the search input has room on narrow
+// windows (otherwise tabs get clipped, leaving the selected tab as a
+// dangling gray block).
+final RxBool _peerSearchExpanded = false.obs;
+
 class _PeerTabPageState extends State<PeerTabPage>
     with SingleTickerProviderStateMixin {
   final List<_TabEntry> entries = [
@@ -120,8 +126,11 @@ class _PeerTabPageState extends State<PeerTabPage>
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(
-                        child: visibleContextMenuListener(
-                            _createSwitchBar(context))),
+                      child: _peerSearchExpanded.value
+                          ? const SizedBox.shrink()
+                          : visibleContextMenuListener(
+                              _createSwitchBar(context)),
+                    ),
                     if (stateGlobal.isPortrait.isTrue)
                       ..._portraitRightActions(context)
                     else
@@ -687,6 +696,14 @@ class _PeerSearchBarState extends State<PeerSearchBar> {
   var drawer = false;
 
   @override
+  void dispose() {
+    if (drawer) {
+      _peerSearchExpanded.value = false;
+    }
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final c = context.dtColors;
     return drawer
@@ -699,6 +716,7 @@ class _PeerSearchBarState extends State<PeerSearchBar> {
               setState(() {
                 drawer = true;
               });
+              _peerSearchExpanded.value = true;
             },
             child: Icon(
               PhosphorIcons.magnifyingGlass(),
@@ -768,6 +786,7 @@ class _PeerSearchBarState extends State<PeerSearchBar> {
                           peerSearchText.value = "";
                           drawer = false;
                         });
+                        _peerSearchExpanded.value = false;
                       },
                       icon: Tooltip(
                           message: translate('Close'),

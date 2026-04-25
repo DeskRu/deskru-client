@@ -361,16 +361,13 @@ class _DesktopHomePageState extends State<DesktopHomePage>
     );
   }
 
-  // DeskRu enrollment entry — Ghost button "Подключить к организации" or
-  // bound-pill with org name. Sits in LeftPane below Settings (per §5.1
-  // visual refresh spec).
+  // DeskRu enrollment indicator — pill with org name shown only when the
+  // device is bound. Connect/disconnect actions live in Settings → Account
+  // so non-corporate users see a clean LeftPane.
   Widget buildEnrollmentEntry(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 20, right: 16, top: 8),
-      child: SizedBox(
-        width: double.infinity,
-        child: const EnrollmentCard(),
-      ),
+    return const Padding(
+      padding: EdgeInsets.only(left: 20, right: 16, top: 8),
+      child: EnrollmentPill(),
     );
   }
 

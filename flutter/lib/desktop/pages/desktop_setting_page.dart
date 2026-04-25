@@ -17,6 +17,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_hbb/consts.dart';
 import 'package:flutter_hbb/desktop/pages/desktop_home_page.dart';
 import 'package:flutter_hbb/desktop/pages/desktop_tab_page.dart';
+import 'package:flutter_hbb/desktop/widgets/enrollment_card.dart';
 import 'package:flutter_hbb/desktop/widgets/remote_toolbar.dart';
 import 'package:flutter_hbb/mobile/widgets/dialog.dart';
 import 'package:flutter_hbb/models/platform_model.dart';
@@ -2116,6 +2117,9 @@ class _AccountState extends State<_Account> {
       controller: scrollController,
       children: [
         _Card(title: 'Account', children: [accountAction(), useInfo()]),
+        _Card(title: 'Corporate connection', children: [
+          const EnrollmentSettingsBlock(),
+        ]),
       ],
     ).marginOnly(bottom: _kListViewBottomMargin);
   }
