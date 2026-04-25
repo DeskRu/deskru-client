@@ -416,19 +416,31 @@ class _DesktopHomePageState extends State<DesktopHomePage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (!isOutgoingOnly)
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'DeskRu',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.5,
-                  color: Theme.of(context).brightness == Brightness.dark
-                      ? Colors.white
-                      : const Color(0xFF1A2332),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: Image.asset(
+                    'assets/icon.png',
+                    width: 26,
+                    height: 26,
+                    filterQuality: FilterQuality.high,
+                  ),
                 ),
-              ),
+                const SizedBox(width: 10),
+                Text(
+                  'DeskRu',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.5,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : const Color(0xFF1A2332),
+                  ),
+                ),
+              ],
             ),
           SizedBox(
             height: 10.0,
