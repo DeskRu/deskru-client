@@ -64,8 +64,7 @@ class _DtRadioState<T> extends State<DtRadio<T>> {
         onTap: disabled ? null : () => widget.onChanged!(widget.value),
         child: Opacity(
           opacity: disabled ? 0.45 : 1.0,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 120),
+          child: Container(
             padding: const EdgeInsets.symmetric(
               horizontal: 10,
               vertical: 10,

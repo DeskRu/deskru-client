@@ -418,8 +418,7 @@ class _SettingsNavItemState extends State<_SettingsNavItem> {
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: widget.onTap,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 120),
+          child: Container(
             height: _kTabHeight,
             padding: const EdgeInsets.symmetric(horizontal: 10),
             decoration: BoxDecoration(
