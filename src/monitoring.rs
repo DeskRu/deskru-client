@@ -11,6 +11,7 @@
 // crash the process. The HTTP path uses common::http_request_sync, which
 // already tunnels through the configured proxy when set.
 
+use hbb_common::log;
 use serde::Serialize;
 use std::sync::Mutex;
 use std::time::{Duration, Instant};
@@ -70,7 +71,9 @@ pub fn collect_static() -> TelemetryStatic {
         .map(|c| c.brand().to_string())
         .unwrap_or_default();
     let cpu_threads = sys.cpus().len() as u32;
-    let cpu_cores = System::physical_core_count().unwrap_or(cpu_threads as usize) as u32;
+    let cpu_cores = sys
+        .physical_core_count()
+        .unwrap_or(cpu_threads as usize) as u32;
     let ram_total_bytes = sys.total_memory();
 
     let disks = Disks::new_with_refreshed_list();
