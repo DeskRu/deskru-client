@@ -21,6 +21,7 @@ import 'package:flutter_hbb/plugin/ui_manager.dart';
 import 'package:flutter_hbb/utils/multi_window_manager.dart';
 import 'package:flutter_hbb/utils/platform_channel.dart';
 import 'package:get/get.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:window_manager/window_manager.dart';
@@ -151,7 +152,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                   child: InkWell(
                     child: Obx(
                       () => Icon(
-                        Icons.settings,
+                        PhosphorIconsRegular.gear,
                         color: _editHover.value
                             ? textColor
                             : Colors.grey.withOpacity(0.5),

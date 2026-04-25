@@ -21,6 +21,7 @@ import 'package:flutter_hbb/models/state_model.dart';
 import 'package:flutter_hbb/plugin/manager.dart';
 import 'package:flutter_hbb/plugin/widgets/desktop_settings.dart';
 import 'package:get/get.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -183,35 +184,35 @@ class _DesktopSettingPageState extends State<DesktopSettingPage>
       switch (tab) {
         case SettingsTabKey.general:
           settingTabs.add(_TabInfo(
-              tab, 'General', Icons.settings_outlined, Icons.settings));
+              tab, 'General', PhosphorIconsRegular.gear, PhosphorIconsFill.gear));
           break;
         case SettingsTabKey.safety:
           settingTabs.add(_TabInfo(tab, 'Security',
-              Icons.enhanced_encryption_outlined, Icons.enhanced_encryption));
+              PhosphorIconsRegular.shield, PhosphorIconsFill.shield));
           break;
         case SettingsTabKey.network:
           settingTabs
-              .add(_TabInfo(tab, 'Network', Icons.link_outlined, Icons.link));
+              .add(_TabInfo(tab, 'Network', PhosphorIconsRegular.globe, PhosphorIconsFill.globe));
           break;
         case SettingsTabKey.display:
           settingTabs.add(_TabInfo(tab, 'Display',
-              Icons.desktop_windows_outlined, Icons.desktop_windows));
+              PhosphorIconsRegular.monitor, PhosphorIconsFill.monitor));
           break;
         case SettingsTabKey.plugin:
           settingTabs.add(_TabInfo(
-              tab, 'Plugin', Icons.extension_outlined, Icons.extension));
+              tab, 'Plugin', PhosphorIconsRegular.puzzlePiece, PhosphorIconsFill.puzzlePiece));
           break;
         case SettingsTabKey.account:
           settingTabs.add(
-              _TabInfo(tab, 'Account', Icons.person_outline, Icons.person));
+              _TabInfo(tab, 'Account', PhosphorIconsRegular.userCircle, PhosphorIconsFill.userCircle));
           break;
         case SettingsTabKey.printer:
           settingTabs
-              .add(_TabInfo(tab, 'Printer', Icons.print_outlined, Icons.print));
+              .add(_TabInfo(tab, 'Printer', PhosphorIconsRegular.printer, PhosphorIconsFill.printer));
           break;
         case SettingsTabKey.about:
           settingTabs
-              .add(_TabInfo(tab, 'About', Icons.info_outline, Icons.info));
+              .add(_TabInfo(tab, 'About', PhosphorIconsRegular.info, PhosphorIconsFill.info));
           break;
       }
     }

@@ -12,6 +12,7 @@ import 'package:flutter_hbb/models/peer_model.dart';
 import 'package:flutter_hbb/models/peer_tab_model.dart';
 import 'package:flutter_hbb/models/state_model.dart';
 import 'package:get/get.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:flutter_hbb/utils/http_service.dart' as http;
 
@@ -304,7 +305,7 @@ Future<String> changeDirectAccessPort(
                             prefix: Text('$currentIP : '),
                             suffix: IconButton(
                                 padding: EdgeInsets.zero,
-                                icon: const Icon(Icons.clear, size: 16),
+                                icon: const Icon(PhosphorIconsRegular.x, size: 16),
                                 onPressed: () => controller.clear())),
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(RegExp(
@@ -352,7 +353,7 @@ Future<String> changeAutoDisconnectTimeout(String old) async {
                             isCollapsed: true,
                             suffix: IconButton(
                                 padding: EdgeInsets.zero,
-                                icon: const Icon(Icons.clear, size: 16),
+                                icon: const Icon(PhosphorIconsRegular.x, size: 16),
                                 onPressed: () => controller.clear())),
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(RegExp(
@@ -395,9 +396,9 @@ class DialogTextField extends StatelessWidget {
   final int? maxLength;
 
   static const kUsernameTitle = 'Username';
-  static const kUsernameIcon = Icon(Icons.account_circle_outlined);
+  static const kUsernameIcon = Icon(PhosphorIconsRegular.userCircle);
   static const kPasswordTitle = 'Password';
-  static const kPasswordIcon = Icon(Icons.lock_outline);
+  static const kPasswordIcon = Icon(PhosphorIconsRegular.lock);
 
   DialogTextField(
       {Key? key,
@@ -769,7 +770,7 @@ class _PasswordWidgetState extends State<PasswordWidget> {
       suffixIcon: IconButton(
         icon: Icon(
             // Based on passwordVisible state choose the icon
-            _passwordVisible ? Icons.visibility : Icons.visibility_off,
+            _passwordVisible ? PhosphorIconsRegular.eye : PhosphorIconsRegular.eyeSlash,
             color: MyTheme.lightTheme.primaryColor),
         onPressed: () {
           // Update the state i.e. toggle the state of passwordVisible variable
@@ -1029,7 +1030,7 @@ _connectDialog(
       title: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.password_rounded, color: MyTheme.accent),
+          Icon(PhosphorIconsRegular.password, color: MyTheme.accent),
           Text(translate('Password Required')).paddingOnly(left: 10),
         ],
       ),
@@ -1043,13 +1044,13 @@ _connectDialog(
       actions: [
         dialogButton(
           'Cancel',
-          icon: Icon(Icons.close_rounded),
+          icon: Icon(PhosphorIconsRegular.x),
           onPressed: cancel,
           isOutline: true,
         ),
         dialogButton(
           'OK',
-          icon: Icon(Icons.done_rounded),
+          icon: Icon(PhosphorIconsRegular.check),
           onPressed: submit,
         ),
       ],
@@ -1070,7 +1071,7 @@ void showWaitUacDialog(
             actions: [
               dialogButton(
                 'OK',
-                icon: Icon(Icons.done_rounded),
+                icon: Icon(PhosphorIconsRegular.check),
                 onPressed: close,
               ),
             ],
@@ -1161,7 +1162,7 @@ void showRequestElevationDialog(
     ),
     child: Row(
       children: [
-        Icon(Icons.info_outline_rounded, size: 20).marginOnly(right: 10),
+        Icon(PhosphorIconsRegular.info, size: 20).marginOnly(right: 10),
         Expanded(
           child: Text(
             translate('still_click_uac_tip'),
@@ -1232,13 +1233,13 @@ void showRequestElevationDialog(
       actions: [
         dialogButton(
           'Cancel',
-          icon: Icon(Icons.close_rounded),
+          icon: Icon(PhosphorIconsRegular.x),
           onPressed: close,
           isOutline: true,
         ),
         dialogButton(
           'OK',
-          icon: Icon(Icons.done_rounded),
+          icon: Icon(PhosphorIconsRegular.check),
           onPressed: submit,
         )
       ],
@@ -1326,7 +1327,7 @@ void showRestartRemoteDevice(PeerInfo pi, String id, SessionID sessionId,
   final res = await dialogManager
       .show<bool>((setState, close, context) => CustomAlertDialog(
             title: Row(children: [
-              Icon(Icons.warning_rounded, color: Colors.redAccent, size: 28),
+              Icon(PhosphorIconsRegular.warning, color: Colors.redAccent, size: 28),
               Flexible(
                   child: Text(translate("Restart remote device"))
                       .paddingOnly(left: 10)),
@@ -1336,13 +1337,13 @@ void showRestartRemoteDevice(PeerInfo pi, String id, SessionID sessionId,
             actions: [
               dialogButton(
                 "Cancel",
-                icon: Icon(Icons.close_rounded),
+                icon: Icon(PhosphorIconsRegular.x),
                 onPressed: close,
                 isOutline: true,
               ),
               dialogButton(
                 "OK",
-                icon: Icon(Icons.done_rounded),
+                icon: Icon(PhosphorIconsRegular.check),
                 onPressed: () => close(true),
               ),
             ],
@@ -1391,7 +1392,7 @@ showSetOSPassword(
       title: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.password_rounded, color: MyTheme.accent),
+          Icon(PhosphorIconsRegular.password, color: MyTheme.accent),
           Text(translate('OS Password')).paddingOnly(left: 10),
         ],
       ),
@@ -1417,13 +1418,13 @@ showSetOSPassword(
       actions: [
         dialogButton(
           "Cancel",
-          icon: Icon(Icons.close_rounded),
+          icon: Icon(PhosphorIconsRegular.x),
           onPressed: closeWithCallback,
           isOutline: true,
         ),
         dialogButton(
           "OK",
-          icon: Icon(Icons.done_rounded),
+          icon: Icon(PhosphorIconsRegular.check),
           onPressed: submit,
         ),
       ],
@@ -1482,7 +1483,7 @@ showSetOSAccount(
       title: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.password_rounded, color: MyTheme.accent),
+          Icon(PhosphorIconsRegular.password, color: MyTheme.accent),
           Text(translate('OS Account')).paddingOnly(left: 10),
         ],
       ),
@@ -1502,13 +1503,13 @@ showSetOSAccount(
       actions: [
         dialogButton(
           "Cancel",
-          icon: Icon(Icons.close_rounded),
+          icon: Icon(PhosphorIconsRegular.x),
           onPressed: close,
           isOutline: true,
         ),
         dialogButton(
           "OK",
-          icon: Icon(Icons.done_rounded),
+          icon: Icon(PhosphorIconsRegular.check),
           onPressed: submit,
         ),
       ],
@@ -1940,7 +1941,7 @@ void deleteConfirmDialog(Function onSubmit, String title) async {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.delete_rounded,
+              PhosphorIconsRegular.trash,
               color: Colors.red,
             ),
             Expanded(
@@ -1954,13 +1955,13 @@ void deleteConfirmDialog(Function onSubmit, String title) async {
         actions: [
           dialogButton(
             "Cancel",
-            icon: Icon(Icons.close_rounded),
+            icon: Icon(PhosphorIconsRegular.x),
             onPressed: close,
             isOutline: true,
           ),
           dialogButton(
             "OK",
-            icon: Icon(Icons.done_rounded),
+            icon: Icon(PhosphorIconsRegular.check),
             onPressed: submit,
           ),
         ],
@@ -2096,7 +2097,7 @@ void renameDialog(
       title: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.edit_rounded, color: MyTheme.accent),
+          Icon(PhosphorIconsRegular.pencilSimple, color: MyTheme.accent),
           Text(translate('Rename')).paddingOnly(left: 10),
         ],
       ),
@@ -2122,13 +2123,13 @@ void renameDialog(
       actions: [
         dialogButton(
           "Cancel",
-          icon: Icon(Icons.close_rounded),
+          icon: Icon(PhosphorIconsRegular.x),
           onPressed: cancel,
           isOutline: true,
         ),
         dialogButton(
           "OK",
-          icon: Icon(Icons.done_rounded),
+          icon: Icon(PhosphorIconsRegular.check),
           onPressed: submit,
         ),
       ],
@@ -2478,13 +2479,13 @@ void addPeersToAbDialog(
       actions: [
         dialogButton(
           "Cancel",
-          icon: Icon(Icons.close_rounded),
+          icon: Icon(PhosphorIconsRegular.x),
           onPressed: cancel,
           isOutline: true,
         ),
         dialogButton(
           "OK",
-          icon: Icon(Icons.done_rounded),
+          icon: Icon(PhosphorIconsRegular.check),
           onPressed: submit,
         ),
       ],
@@ -2522,7 +2523,7 @@ void setSharedAbPasswordDialog(String abName, Peer peer) {
       title: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.key, color: MyTheme.accent),
+          Icon(PhosphorIconsRegular.key, color: MyTheme.accent),
           Text(translate(peer.password.isEmpty
                   ? 'Set shared password'
                   : 'Change Password'))
@@ -2537,7 +2538,7 @@ void setSharedAbPasswordDialog(String abName, Peer peer) {
               decoration: InputDecoration(
                 suffixIcon: IconButton(
                   icon: Icon(
-                      passwordVisible ? Icons.visibility : Icons.visibility_off,
+                      passwordVisible ? PhosphorIconsRegular.eye : PhosphorIconsRegular.eyeSlash,
                       color: MyTheme.lightTheme.primaryColor),
                   onPressed: () {
                     setState(() {
@@ -2549,7 +2550,7 @@ void setSharedAbPasswordDialog(String abName, Peer peer) {
             ).workaroundFreezeLinuxMint(),
             if (!gFFI.abModel.current.isPersonal())
               Row(children: [
-                Icon(Icons.info, color: Colors.amber).marginOnly(right: 4),
+                Icon(PhosphorIconsRegular.info, color: Colors.amber).marginOnly(right: 4),
                 Text(
                   translate('share_warning_tip'),
                   style: TextStyle(fontSize: 12),
@@ -2561,21 +2562,21 @@ void setSharedAbPasswordDialog(String abName, Peer peer) {
       actions: [
         dialogButton(
           "Cancel",
-          icon: Icon(Icons.close_rounded),
+          icon: Icon(PhosphorIconsRegular.x),
           onPressed: cancel,
           isOutline: true,
         ),
         if (peer.password.isNotEmpty)
           dialogButton(
             "Remove",
-            icon: Icon(Icons.delete_outline_rounded),
+            icon: Icon(PhosphorIconsRegular.trash),
             onPressed: () => change(''),
             buttonStyle: ButtonStyle(
                 backgroundColor: MaterialStatePropertyAll(Colors.red)),
           ),
         Obx(() => dialogButton(
               "OK",
-              icon: Icon(Icons.done_rounded),
+              icon: Icon(PhosphorIconsRegular.check),
               onPressed:
                   isInputEmpty.value ? null : () => change(controller.text),
             )),
