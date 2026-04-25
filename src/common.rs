@@ -948,7 +948,10 @@ pub fn check_software_update() {
 
 #[tokio::main(flavor = "current_thread")]
 pub async fn do_check_software_update() -> hbb_common::ResultType<()> {
-    const URL: &str = "https://api.github.com/repos/DeskRu/releases-clients/releases/latest";
+    // We proxy through deskru.ru so the releases-clients repo can stay private.
+    // The endpoint forwards GitHub Releases API response untouched (with token),
+    // so this code keeps parsing tag_name/html_url as before.
+    const URL: &str = "https://deskru.ru/api/version/latest";
     let client = create_http_client_async(TlsType::Rustls, false);
     let latest_release_response = client
         .get(URL)

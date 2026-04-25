@@ -2396,6 +2396,22 @@ class _AboutState extends State<_About> {
                     translate('Website'),
                     style: linkStyle,
                   ).marginSymmetric(vertical: 4.0)),
+              InkWell(
+                  onTap: () async {
+                    showToast(translate('Checking for updates...'));
+                    bind.mainGetSoftwareUpdateUrl();
+                    await Future.delayed(const Duration(seconds: 3));
+                    if (!mounted) return;
+                    if (stateGlobal.updateUrl.value.isNotEmpty) {
+                      showToast(translate('A new version is available'));
+                    } else {
+                      showToast(translate('You are on the latest version'));
+                    }
+                  },
+                  child: Text(
+                    translate('Check for updates'),
+                    style: linkStyle,
+                  ).marginSymmetric(vertical: 4.0)),
               Container(
                 decoration: const BoxDecoration(color: Color(0xFF2c8cff)),
                 padding:
