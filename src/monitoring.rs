@@ -10,7 +10,12 @@
 // On poll/send network errors we keep going (next attempt in 30s) — never
 // crash the process. The HTTP path uses common::http_request_sync, which
 // already tunnels through the configured proxy when set.
+//
+// The Bearer access_token is re-read from LocalConfig at every send, so
+// re-login after the loop has started is picked up automatically (no need
+// to restart the loop; logout simply makes telemetry pauses until next login).
 
+use hbb_common::config::LocalConfig;
 use hbb_common::log;
 use serde::Serialize;
 use std::sync::Mutex;
@@ -269,7 +274,7 @@ fn battery_info() -> (Option<i32>, Option<bool>) {
     (None, None)
 }
 
-pub fn start_telemetry_loop(device_id: String, access_token: String) {
+pub fn start_telemetry_loop(device_id: String) {
     let mut started = MONITORING_STARTED.lock().unwrap();
     if *started {
         log::info!("[deskru-monitoring] loop already running, skip");
@@ -278,10 +283,10 @@ pub fn start_telemetry_loop(device_id: String, access_token: String) {
     *started = true;
     drop(started);
 
-    std::thread::spawn(move || telemetry_loop(device_id, access_token));
+    std::thread::spawn(move || telemetry_loop(device_id));
 }
 
-fn telemetry_loop(device_id: String, access_token: String) {
+fn telemetry_loop(device_id: String) {
     log::info!(
         "[deskru-monitoring] loop started, device_id={}",
         device_id
@@ -311,8 +316,9 @@ fn telemetry_loop(device_id: String, access_token: String) {
         if enabled_cached {
             let static_due =
                 last_static_sent.elapsed() >= Duration::from_secs(STATIC_INFO_REFRESH_SECS);
-            send_telemetry(&api, &access_token, &device_id, static_due);
-            if static_due {
+            // Static-due is only consumed when we actually send (token present).
+            // If we skipped due to logout, retry static on the next tick.
+            if send_telemetry(&api, &device_id, static_due) && static_due {
                 last_static_sent = Instant::now();
             }
         }
@@ -360,7 +366,16 @@ fn poll_status(api: &str, device_id: &str) -> bool {
         .unwrap_or(false)
 }
 
-fn send_telemetry(api: &str, access_token: &str, device_id: &str, include_static: bool) {
+// Returns true if a request was attempted (token present), false if skipped
+// because the user is currently logged out. The caller uses this to decide
+// whether to advance the static-info timer.
+fn send_telemetry(api: &str, device_id: &str, include_static: bool) -> bool {
+    let access_token = LocalConfig::get_option("access_token");
+    if access_token.is_empty() {
+        log::debug!("[deskru-monitoring] no access_token (logged out), skip send");
+        return false;
+    }
+
     let current = collect_current();
     let mut payload = serde_json::json!({
         "device_id": device_id,
@@ -392,4 +407,5 @@ fn send_telemetry(api: &str, access_token: &str, device_id: &str, include_static
             log::warn!("[deskru-monitoring] send failed: {}", e);
         }
     }
+    true
 }

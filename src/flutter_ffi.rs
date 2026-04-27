@@ -1419,26 +1419,30 @@ pub fn main_clear_enrollment() -> SyncReturn<()> {
 }
 
 // DeskRu device-monitoring (v2.0.7). Spawns the telemetry loop on the first
-// call. Idempotent — re-calling after re-login is safe.
+// call. Idempotent — re-calling is a no-op once the loop is running.
 //
-// Returns true if the loop was started (or was already running). False when
-// device_id or access_token is empty (user not logged in / no ID yet) or on
-// mobile platforms (not in scope for v2.0.7).
+// The loop reads the access_token from LocalConfig on every send, so
+// login/logout transitions are picked up automatically without restart.
+// Caller only needs a stable device_id; pass it as soon as it's known.
+//
+// Returns true if the loop is running (started now or earlier). False when
+// device_id is empty (not yet assigned) or on mobile platforms (out of scope
+// for v2.0.7).
 //
 // Single fn signature for flutter_rust_bridge — codegen doesn't honor #[cfg]
 // gates at the item level, so we keep one entry point and gate the body.
-pub fn main_monitoring_start(device_id: String, access_token: String) -> SyncReturn<bool> {
-    if device_id.trim().is_empty() || access_token.trim().is_empty() {
+pub fn main_monitoring_start(device_id: String) -> SyncReturn<bool> {
+    if device_id.trim().is_empty() {
         return SyncReturn(false);
     }
     #[cfg(not(any(target_os = "android", target_os = "ios")))]
     {
-        crate::monitoring::start_telemetry_loop(device_id, access_token);
+        crate::monitoring::start_telemetry_loop(device_id);
         SyncReturn(true)
     }
     #[cfg(any(target_os = "android", target_os = "ios"))]
     {
-        let _ = (device_id, access_token);
+        let _ = device_id;
         SyncReturn(false)
     }
 }

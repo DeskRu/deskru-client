@@ -3955,21 +3955,19 @@ void checkUpdate() {
   }
 }
 
-// DeskRu device-monitoring kick-off. Tries to start the Rust telemetry loop
-// once we have both a device ID and a logged-in access_token. Until both are
-// available (login-after-launch / first-run with no ID yet) it retries every
-// 60 seconds. The Rust side is idempotent — calling it multiple times is safe.
+// DeskRu device-monitoring kick-off. Starts the Rust telemetry loop as soon
+// as a device ID is known; the loop itself reads the access_token from
+// LocalConfig on every send, so login-after-launch / re-login transitions are
+// picked up without any restart. Until the device ID is assigned we retry
+// every 60 seconds. The Rust side is idempotent — calling it multiple times
+// is safe.
 Timer? _monitoringStartTimer;
 
 Future<void> _attemptStartMonitoring() async {
   try {
     final deviceId = await bind.mainGetMyId();
-    final accessToken = bind.mainGetLocalOption(key: 'access_token');
-    if (deviceId.trim().isEmpty || accessToken.trim().isEmpty) return;
-    final ok = bind.mainMonitoringStart(
-      deviceId: deviceId,
-      accessToken: accessToken,
-    );
+    if (deviceId.trim().isEmpty) return;
+    final ok = bind.mainMonitoringStart(deviceId: deviceId);
     if (ok == true) {
       _monitoringStartTimer?.cancel();
       _monitoringStartTimer = null;
