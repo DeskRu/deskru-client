@@ -467,6 +467,7 @@ impl Client {
             udp_port: udp_nat_port as _,
             force_relay: interface.is_force_relay(),
             socket_addr_v6: ipv6.1.unwrap_or_default(),
+            my_id: Config::get_id(),
             ..Default::default()
         });
         for i in 1..=3 {
@@ -875,6 +876,7 @@ impl Client {
                 uuid: uuid.clone(),
                 relay_server: relay_server.clone(),
                 secure,
+                my_id: Config::get_id(),
                 ..Default::default()
             });
             socket.send(&msg_out).await?;
@@ -918,6 +920,7 @@ impl Client {
             id: peer.to_owned(),
             uuid,
             conn_type: conn_type.into(),
+            my_id: Config::get_id(),
             ..Default::default()
         });
         conn.send(&msg_out).await?;
