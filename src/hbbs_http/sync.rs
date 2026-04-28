@@ -241,7 +241,18 @@ async fn start_hbbs_sync_async() {
                 }
                 let modified_at = LocalConfig::get_option("strategy_timestamp").parse::<i64>().unwrap_or(0);
                 v["modified_at"] = json!(modified_at);
-                if let Ok(s) = crate::post_request(url.clone(), v.to_string(), "").await {
+                // Authenticated heartbeat: include the user's access_token so the
+                // server can refresh the auth session bound to this device. Without
+                // a valid token, the server keeps the heartbeat (peer status update)
+                // but does NOT extend the auth session — logged-out clients lose
+                // their right to PunchHole within AuthSessionTTL.
+                let token = LocalConfig::get_option("access_token");
+                let auth_header = if token.is_empty() {
+                    String::new()
+                } else {
+                    format!("Authorization: Bearer {}", token)
+                };
+                if let Ok(s) = crate::post_request(url.clone(), v.to_string(), &auth_header).await {
                     if let Ok(mut rsp) = serde_json::from_str::<HashMap::<&str, Value>>(&s) {
                         if rsp.remove("sysinfo").is_some() {
                             info_uploaded.uploaded = false;
